@@ -11,8 +11,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner />
+      <div className="flex items-center justify-center min-h-svh">
+        <Spinner className="size-10" />
       </div>
     );
   }

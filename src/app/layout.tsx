@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Boilerplate NextJS",
-  description: "Boilerplate NextJS.",
+  title: "Taccuino Chirurgico",
+  description: "Taccuino Chirurgico mobile-first surgical companion.",
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
