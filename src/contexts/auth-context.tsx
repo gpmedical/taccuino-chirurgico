@@ -1,0 +1,144 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState } from "react";
+import { User, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
+import { auth, db, getUserProfile } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import type { UserProfile } from "@/types/user";
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
+  profile: UserProfile | null;
+  isProfileComplete: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // Helper function to save user data to Firestore with error handling
+  const saveUserToFirestore = async (user: User) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (!docSnap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName,
+          photoURL: user.photoURL,
+          provider: user.providerData[0]?.providerId || "email",
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error("Failed to save user data to Firestore:", error);
+      // Don't throw error - this is not critical for authentication
+    }
+  };
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Helper function to redirect to dashboard
+  const redirectToDashboard = () => {
+    if (!mounted) return;
+    const currentPath = window.location.pathname;
+    if (currentPath === '/login' || currentPath === '/signup' || currentPath === '/') {
+      router.push('/dashboard');
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Fallback timeout to ensure loading state resolves
+    const timeoutId = setTimeout(() => {
+      if (isMounted && loading) {
+        setLoading(false);
+      }
+    }, 5000); // 5 second timeout
+
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!isMounted) return;
+
+      if (user) {
+        // Try to save user data to Firestore (non-blocking)
+        saveUserToFirestore(user).catch(error => {
+          console.error("Full error object when saving user data:", error);
+        });
+        setUser(user);
+        // Fetch user profile
+        // Fetch user profile
+        try {
+          const prof = await getUserProfile(user.uid);
+          setProfile(prof as UserProfile | null);
+          setIsProfileComplete(
+            !!prof &&
+            !!prof.firstName &&
+            !!prof.lastName &&
+            !!prof.gender &&
+            !!prof.role &&
+            !!prof.specialty
+          );
+        } catch (error) {
+          console.error("Failed to fetch user profile:", error);
+          setProfile(null);
+          setIsProfileComplete(false);
+        }
+        // Redirect to dashboard if user is authenticated and we're on auth pages
+        redirectToDashboard();
+      } else {
+        setUser(null);
+        setProfile(null);
+        setIsProfileComplete(false);
+      }
+      if (isMounted) {
+        setLoading(false);
+        clearTimeout(timeoutId);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
+  }, [router, loading]);
+
+  const signOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+      router.push("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, signOut, profile, isProfileComplete }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+} 
