@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
-import { auth, db, getUserProfile } from "@/lib/firebase";
+import { auth, db, getUserProfile, createUserProfile } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import type { UserProfile } from "@/types/user";
@@ -12,7 +12,6 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   profile: UserProfile | null;
-  isProfileComplete: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +19,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -53,13 +51,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Helper function to redirect to dashboard
-  const redirectToDashboard = () => {
+  const redirectToDashboard = useCallback(() => {
     if (!mounted) return;
     const currentPath = window.location.pathname;
     if (currentPath === '/login' || currentPath === '/signup' || currentPath === '/') {
       router.push('/dashboard');
     }
-  };
+  }, [mounted, router]);
 
   useEffect(() => {
     let isMounted = true;
@@ -81,30 +79,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error("Full error object when saving user data:", error);
         });
         setUser(user);
-        // Fetch user profile
-        // Fetch user profile
+        // Fetch or create user profile
         try {
-          const prof = await getUserProfile(user.uid);
-          setProfile(prof as UserProfile | null);
-          setIsProfileComplete(
-            !!prof &&
-            !!prof.firstName &&
-            !!prof.lastName &&
-            !!prof.gender &&
-            !!prof.role &&
-            !!prof.specialty
-          );
+          let prof = await getUserProfile(user.uid);
+
+          if (!prof) {
+            const displayName = user.displayName?.trim() || "";
+            const [firstName, ...rest] = displayName.split(" ");
+            const lastName = rest.join(" ");
+
+            await createUserProfile(user.uid, {
+              firstName: firstName || "",
+              lastName: lastName || "",
+            });
+
+            prof = await getUserProfile(user.uid);
+          }
+
+          setProfile((prof ?? null) as UserProfile | null);
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
           setProfile(null);
-          setIsProfileComplete(false);
         }
         // Redirect to dashboard if user is authenticated and we're on auth pages
         redirectToDashboard();
       } else {
         setUser(null);
         setProfile(null);
-        setIsProfileComplete(false);
       }
       if (isMounted) {
         setLoading(false);
@@ -117,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(timeoutId);
       unsubscribe();
     };
-  }, [router, loading]);
+  }, [router, loading, redirectToDashboard]);
 
   const signOut = async () => {
     try {
@@ -129,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, profile, isProfileComplete }}>
+    <AuthContext.Provider value={{ user, loading, signOut, profile }}>
       {children}
     </AuthContext.Provider>
   );

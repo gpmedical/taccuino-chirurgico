@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
-import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth"
+import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from "../../lib/firebase"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
@@ -25,7 +25,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form"
-import { GoogleIcon } from "@/components/ui/google-icon"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -55,23 +54,10 @@ export function LoginForm({
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       // The AuthProvider will handle the redirect when it detects the user is authenticated
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      setError(error.message || 'Failed to login. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleLoginWithGoogle() {
-    setLoading(true);
-    setError("");
-    try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
-      // The AuthProvider will handle the redirect when it detects the user is authenticated
-    } catch (error: any) {
-      console.error('Google login error:', error);
-      setError(error.message || 'Failed to login with Google. Please try again.');
+      const message = error instanceof Error ? error.message : 'Failed to login. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -152,23 +138,6 @@ export function LoginForm({
                     {loading ? 'Logging in...' : 'Login'}
                   </Button>
                 </div>
-                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
-                    Or
-                  </span>
-                </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={handleLoginWithGoogle}
-                  disabled={loading}
-                  aria-label="Continue with Google"
-                  role="button"
-                >
-                  <GoogleIcon className="mr-2 size-5" />
-                  Continue with Google
-                </Button>
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
                   <Link href="/signup" className="underline underline-offset-4">

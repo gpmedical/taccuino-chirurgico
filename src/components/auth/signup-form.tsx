@@ -10,8 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
-import { auth } from "../../lib/firebase"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { auth, createUserProfile } from "@/lib/firebase"
 import { useState } from "react"
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -25,12 +25,13 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { GoogleIcon } from "@/components/ui/google-icon";
 
 const passwordRequirements =
   "Password must be at least 8 characters and include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.";
 
 const signupSchema = z.object({
+  firstName: z.string().min(1, "Please enter your first name"),
+  lastName: z.string().min(1, "Please enter your last name"),
   email: z.string().email("Please enter a valid email address"),
   password: z
     .string()
@@ -68,6 +69,8 @@ export function SignUpForm({
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -81,25 +84,27 @@ export function SignUpForm({
     setLoading(true);
     setError("");
     try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
-      // The AuthProvider will handle the redirect when it detects the user is authenticated
-    } catch (error: any) {
-      console.error('Signup error:', error);
-      setError(error.message || 'Failed to create account. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
 
-  async function handleSignUpWithGoogle() {
-    setLoading(true);
-    setError("");
-    try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      if (userCredential.user) {
+        const displayName = `${values.firstName} ${values.lastName}`.trim();
+        if (displayName) {
+          await updateProfile(userCredential.user, {
+            displayName,
+          });
+        }
+
+        await createUserProfile(userCredential.user.uid, {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        });
+      }
+
       // The AuthProvider will handle the redirect when it detects the user is authenticated
-    } catch (error: any) {
-      console.error('Google signup error:', error);
-      setError(error.message || 'Failed to sign up with Google. Please try again.');
+    } catch (error: unknown) {
+      console.error('Signup error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to create account. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -119,6 +124,50 @@ export function SignUpForm({
             <form onSubmit={form.handleSubmit(handleSignUp)}>
               <div className="grid gap-4">
                 <div className="grid gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      name="firstName"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="first-name"
+                              placeholder="John"
+                              disabled={loading}
+                              autoComplete="given-name"
+                              aria-label="First Name"
+                              role="textbox"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="lastName"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="last-name"
+                              placeholder="Doe"
+                              disabled={loading}
+                              autoComplete="family-name"
+                              aria-label="Last Name"
+                              role="textbox"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     name="email"
                     control={form.control}
@@ -207,25 +256,6 @@ export function SignUpForm({
                   )}
                   <Button type="submit" className="w-full" disabled={loading} aria-label="Sign Up" role="button">
                     {loading ? 'Creating account...' : 'Sign Up'}
-                  </Button>
-                </div>
-                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
-                    Or
-                  </span>
-                </div>
-                <div className="flex flex-col gap-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={handleSignUpWithGoogle}
-                    disabled={loading}
-                    aria-label="Continue with Google"
-                    role="button"
-                  >
-                    <GoogleIcon className="mr-2 size-5" />
-                    Continue with Google
                   </Button>
                 </div>
                 <div className="text-center text-sm">
