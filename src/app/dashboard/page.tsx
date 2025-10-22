@@ -9,10 +9,16 @@ export default function Dashboard() {
 
   return (
     <AuthGuard requireAuth={true} profileRequirement="complete">
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Welcome, {user?.displayName || 'User'}</p>
-        <Button onClick={signOut} variant="destructive" className="mt-4">Sign Out</Button>
+      <div className="flex min-h-svh w-full flex-col items-center justify-center gap-4 px-6 py-10 text-center sm:px-8">
+        <div className="w-full max-w-2xl space-y-3">
+          <h1 className="text-balance text-3xl font-bold text-primary sm:text-4xl">Taccuino Chirurgico Dashboard</h1>
+          <p className="text-pretty text-sm text-muted-foreground sm:text-base">
+            Benvenuto, {user?.displayName || "chirurgo"}. Gestisci le tue note operative e monitora i tuoi casi clinici da qualsiasi dispositivo.
+          </p>
+          <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button onClick={signOut} variant="destructive" className="w-full sm:w-auto">Sign Out</Button>
+          </div>
+        </div>
       </div>
     </AuthGuard>
   )
