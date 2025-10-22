@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc, serverTimestamp, getDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import type { UserProfile } from '@/types/user';
@@ -23,13 +23,17 @@ export const storage = getStorage(app);
 
 export const analytics = typeof window !== 'undefined' && isSupported().then(supported => supported ? getAnalytics(app) : null);
 
-export async function createUserProfile(userId: string, data: Omit<UserProfile, 'userId' | 'createdAt' | 'updatedAt'>) {
+export async function createUserProfile(
+  userId: string,
+  data: Omit<UserProfile, 'userId' | 'createdAt' | 'updatedAt'>
+) {
   const profileRef = doc(collection(db, 'profiles'), userId);
+  const timestamp = serverTimestamp();
   const profileData: UserProfile = {
     userId,
     ...data,
-    createdAt: serverTimestamp() as any,
-    updatedAt: serverTimestamp() as any,
+    createdAt: timestamp as unknown as Timestamp,
+    updatedAt: timestamp as unknown as Timestamp,
   };
   try {
     await setDoc(profileRef, profileData);
@@ -51,7 +55,7 @@ export async function getUserProfile(userId: string) {
 
 export async function updateUserProfile(
   userId: string,
-  data: Partial<Omit<UserProfile, 'userId' | 'createdAt' | 'updatedAt'>>,
+  data: Partial<Omit<UserProfile, 'userId' | 'createdAt' | 'updatedAt'>>
 ) {
   try {
     const profileRef = doc(collection(db, 'profiles'), userId);

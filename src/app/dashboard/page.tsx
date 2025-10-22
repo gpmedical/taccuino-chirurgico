@@ -8,7 +8,7 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
 
   return (
-    <AuthGuard requireAuth={true} profileRequirement="complete">
+    <AuthGuard requireAuth={true}>
       <div className="flex min-h-svh w-full flex-col items-center justify-center gap-4 px-6 py-10 text-center sm:px-8">
         <div className="w-full max-w-2xl space-y-3">
           <h1 className="text-balance text-3xl font-bold text-primary sm:text-4xl">Taccuino Chirurgico Dashboard</h1>
