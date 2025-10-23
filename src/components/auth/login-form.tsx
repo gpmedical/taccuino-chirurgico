@@ -64,19 +64,19 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-4", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Bentornato</CardTitle>
-          <CardDescription>
+    <div className={cn("flex flex-col gap-3", className)} {...props}>
+      <Card className="border-blue-100/80 bg-white/80 py-5 shadow-lg shadow-blue-100/60 backdrop-blur dark:border-blue-900/50 dark:bg-slate-950/60 dark:shadow-blue-950/40 sm:py-6">
+        <CardHeader className="gap-2 text-center">
+          <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-white">Bentornato</CardTitle>
+          <CardDescription className="text-base text-slate-600 dark:text-slate-300">
             Accedi al tuo account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleLogin)}>
-              <div className="grid gap-4">
-                <div className="flex flex-col gap-4">
+              <div className="grid gap-3 sm:gap-4">
+                <div className="grid gap-3 sm:gap-4">
                   <FormField
                     name="email"
                     control={form.control}
@@ -108,7 +108,7 @@ export function LoginForm({
                           <FormLabel>Password</FormLabel>
                           <Link
                             href="/forgot-password"
-                            className="ml-auto text-sm underline-offset-4 hover:underline"
+                            className="ml-auto text-sm font-medium text-blue-600 underline-offset-4 hover:text-blue-700 hover:underline dark:text-blue-300 dark:hover:text-blue-200"
                           >
                             Hai dimenticato la password?
                           </Link>
@@ -134,13 +134,22 @@ export function LoginForm({
                       {error}
                     </div>
                   )}
-                  <Button type="submit" className="w-full" disabled={loading} aria-label="Accedi" role="button">
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
+                    disabled={loading}
+                    aria-label="Accedi"
+                    role="button"
+                  >
                     {loading ? 'Accesso in corso...' : 'Accedi'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
                   Non hai un account?{" "}
-                  <Link href="/signup" className="underline underline-offset-4">
+                  <Link
+                    href="/signup"
+                    className="font-medium text-blue-600 underline underline-offset-4 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                  >
                     Registrati
                   </Link>
                 </div>
