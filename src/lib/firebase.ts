@@ -40,7 +40,7 @@ export async function createUserProfile(
     return profileRef;
   } catch (error) {
     console.error("Firestore error in createUserProfile:", error);
-    throw new Error("Failed to create profile in Firestore.");
+    throw new Error("Impossibile creare il profilo in Firestore.");
   }
 }
 
@@ -66,7 +66,7 @@ export async function updateUserProfile(
     return profileRef;
   } catch (error) {
     console.error("Firestore error in updateUserProfile:", error);
-    throw new Error("Failed to update profile in Firestore.");
+    throw new Error("Impossibile aggiornare il profilo in Firestore.");
   }
 }
 

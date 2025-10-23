@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/form";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email("Inserisci un indirizzo email valido"),
 });
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
       setSuccess(true);
     } catch (error: unknown) {
       console.error("Password reset error:", error);
-      const message = error instanceof Error ? error.message : "Failed to send reset email. Please try again.";
+      const message = error instanceof Error ? error.message : "Invio dell'email di reimpostazione non riuscito. Riprova.";
       setError(message);
     } finally {
       setLoading(false);
@@ -67,9 +67,9 @@ export default function ForgotPasswordPage() {
           </Link>
           <Card>
             <CardHeader>
-              <CardTitle>Reset Password</CardTitle>
+              <CardTitle>Reimposta password</CardTitle>
               <CardDescription>
-                Enter your email address and we&apos;ll send you a link to reset your password.
+                Inserisci il tuo indirizzo email e ti invieremo un link per reimpostare la password.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
                             <Input
                               id="email"
                               type="email"
-                              placeholder="john.doe@email.com"
+                              placeholder="nome.cognome@email.com"
                               disabled={loading}
                               autoComplete="email"
                               aria-label="Email"
@@ -105,16 +105,16 @@ export default function ForgotPasswordPage() {
                     )}
                     {success && (
                       <div className="text-sm text-green-500 text-center">
-                        Check your email for a password reset link.
+                        Controlla la tua email per il link di reimpostazione.
                       </div>
                     )}
-                    <Button type="submit" className="w-full" disabled={loading} aria-label="Send Reset Link" role="button">
-                      {loading ? "Sending..." : "Send Reset Link"}
+                    <Button type="submit" className="w-full" disabled={loading} aria-label="Invia link di reimpostazione" role="button">
+                      {loading ? "Invio in corso..." : "Invia link di reimpostazione"}
                     </Button>
                     <div className="text-center text-sm">
-                      Remember your password?{" "}
-                      <Link href="/login" className="underline underline-offset-4" aria-label="Login" role="link">
-                        Login
+                      Ti sei ricordato la password?{" "}
+                      <Link href="/login" className="underline underline-offset-4" aria-label="Accedi" role="link">
+                        Accedi
                       </Link>
                     </div>
                   </div>
