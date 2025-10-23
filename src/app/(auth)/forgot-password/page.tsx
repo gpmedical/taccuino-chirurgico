@@ -6,13 +6,6 @@ import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -74,74 +67,66 @@ export default function ForgotPasswordPage() {
               Taccuino Chirurgico
             </span>
           </Link>
-          <Card className="border-blue-100/80 bg-white/80 py-5 text-left shadow-lg shadow-blue-100/60 backdrop-blur dark:border-blue-900/50 dark:bg-slate-950/60 dark:shadow-blue-950/40 sm:py-6">
-            <CardHeader className="gap-2 text-center">
-              <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-white">Reimposta password</CardTitle>
-              <CardDescription className="text-base text-slate-600 dark:text-slate-300">
+          <div className="space-y-6 text-left">
+            <div className="space-y-2 text-center">
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Reimposta password</h1>
+              <p className="text-base text-slate-600 dark:text-slate-300">
                 Inserisci il tuo indirizzo email e ti invieremo un link per reimpostare la password.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleResetPassword)}>
-                  <div className="grid gap-3 sm:gap-4">
-                    <FormField
-                      name="email"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              id="email"
-                              type="email"
-                              placeholder="nome.cognome@email.com"
-                              disabled={loading}
-                              autoComplete="email"
-                              aria-label="Email"
-                              role="textbox"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {error && (
-                      <div className="text-sm text-destructive text-center">
-                        {error}
-                      </div>
-                    )}
-                    {success && (
-                      <div className="text-sm text-emerald-500 text-center">
-                        Controlla la tua email per il link di reimpostazione.
-                      </div>
-                    )}
-                    <Button
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
-                      disabled={loading}
-                      aria-label="Invia link di reimpostazione"
-                      role="button"
-                    >
-                      {loading ? "Invio in corso..." : "Invia link di reimpostazione"}
-                    </Button>
-                    <div className="text-center text-sm">
-                      Ti sei ricordato la password?{" "}
-                      <Link
-                        href="/login"
-                        className="font-medium text-blue-600 underline underline-offset-4 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
-                        aria-label="Accedi"
-                        role="link"
-                      >
-                        Accedi
-                      </Link>
-                    </div>
+              </p>
+            </div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleResetPassword)} className="space-y-5">
+                <FormField
+                  name="email"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="nome.cognome@email.com"
+                          disabled={loading}
+                          autoComplete="email"
+                          aria-label="Email"
+                          role="textbox"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {error && <div className="text-center text-sm text-destructive">{error}</div>}
+                {success && (
+                  <div className="text-center text-sm text-emerald-500">
+                    Controlla la tua email per il link di reimpostazione.
                   </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+                )}
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
+                  disabled={loading}
+                  aria-label="Invia link di reimpostazione"
+                  role="button"
+                >
+                  {loading ? "Invio in corso..." : "Invia link di reimpostazione"}
+                </Button>
+                <div className="text-center text-sm">
+                  Ti sei ricordato la password?{" "}
+                  <Link
+                    href="/login"
+                    className="font-medium text-blue-600 underline underline-offset-4 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                    aria-label="Accedi"
+                    role="link"
+                  >
+                    Accedi
+                  </Link>
+                </div>
+              </form>
+            </Form>
+          </div>
         </div>
       </div>
     </AuthGuard>
