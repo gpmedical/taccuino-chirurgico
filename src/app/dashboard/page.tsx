@@ -16,7 +16,7 @@ export default function Dashboard() {
             Benvenuto, {user?.displayName || "chirurgo"}. Gestisci le tue note operative e monitora i tuoi casi clinici da qualsiasi dispositivo.
           </p>
           <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Button onClick={signOut} variant="destructive" className="w-full sm:w-auto">Sign Out</Button>
+            <Button onClick={signOut} variant="destructive" className="w-full sm:w-auto">Esci</Button>
           </div>
         </div>
       </div>

@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/form"
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Please enter a valid password"),
+  email: z.string().email("Inserisci un indirizzo email valido"),
+  password: z.string().min(1, "Inserisci una password valida"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -56,7 +56,7 @@ export function LoginForm({
       // The AuthProvider will handle the redirect when it detects the user is authenticated
     } catch (error: unknown) {
       console.error('Login error:', error);
-      const message = error instanceof Error ? error.message : 'Failed to login. Please try again.';
+      const message = error instanceof Error ? error.message : 'Accesso non riuscito. Riprova.';
       setError(message);
     } finally {
       setLoading(false);
@@ -67,9 +67,9 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-4", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Welcome back</CardTitle>
+          <CardTitle>Bentornato</CardTitle>
           <CardDescription>
-            Login to your account
+            Accedi al tuo account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,7 +87,7 @@ export function LoginForm({
                           <Input
                             id="email"
                             type="email"
-                            placeholder="john.doe@email.com"
+                            placeholder="nome.cognome@email.com"
                             disabled={loading}
                             autoComplete="email"
                             aria-label="Email"
@@ -110,7 +110,7 @@ export function LoginForm({
                             href="/forgot-password"
                             className="ml-auto text-sm underline-offset-4 hover:underline"
                           >
-                            Forgot your password?
+                            Hai dimenticato la password?
                           </Link>
                         </div>
                         <FormControl>
@@ -134,14 +134,14 @@ export function LoginForm({
                       {error}
                     </div>
                   )}
-                  <Button type="submit" className="w-full" disabled={loading} aria-label="Login" role="button">
-                    {loading ? 'Logging in...' : 'Login'}
+                  <Button type="submit" className="w-full" disabled={loading} aria-label="Accedi" role="button">
+                    {loading ? 'Accesso in corso...' : 'Accedi'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}
+                  Non hai un account?{" "}
                   <Link href="/signup" className="underline underline-offset-4">
-                    Sign up
+                    Registrati
                   </Link>
                 </div>
               </div>
@@ -149,9 +149,7 @@ export function LoginForm({
           </Form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By continuing, you agree to our <Link href="#">Terms of Service</Link> and <Link href="#">Privacy Policy</Link>.
-      </div>
+
     </div>
   )
 }

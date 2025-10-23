@@ -12,12 +12,12 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Taccuino Chirurgico",
-  description: "Taccuino Chirurgico mobile-first surgical companion.",
+  description: "Taccuino Chirurgico, il compagno chirurgico mobile-first.",
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="it" suppressHydrationWarning>
       <head />
       <body
         className={`${inter.variable} antialiased`}

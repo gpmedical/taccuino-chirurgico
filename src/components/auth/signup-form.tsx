@@ -27,12 +27,12 @@ import {
 } from "@/components/ui/form";
 
 const passwordRequirements =
-  "Password must be at least 8 characters and include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.";
+  "La password deve essere lunga almeno 8 caratteri e includere almeno 1 lettera maiuscola, 1 lettera minuscola, 1 numero e 1 carattere speciale.";
 
 const signupSchema = z.object({
-  firstName: z.string().min(1, "Please enter your first name"),
-  lastName: z.string().min(1, "Please enter your last name"),
-  email: z.string().email("Please enter a valid email address"),
+  firstName: z.string().min(1, "Inserisci il tuo nome"),
+  lastName: z.string().min(1, "Inserisci il tuo cognome"),
+  email: z.string().email("Inserisci un indirizzo email valido"),
   password: z
     .string()
     .min(8, passwordRequirements)
@@ -40,25 +40,13 @@ const signupSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/,
       passwordRequirements
     ),
-  confirmPassword: z.string().min(8, "Please confirm your password"),
+  confirmPassword: z.string().min(8, "Conferma la tua password"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "Le password non coincidono",
   path: ["confirmPassword"],
 });
 
 type SignUpFormValues = z.infer<typeof signupSchema>;
-
-function getPasswordStrength(password: string) {
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[a-z]/.test(password)) score++;
-  if (/\d/.test(password)) score++;
-  if (/[^A-Za-z\d]/.test(password)) score++;
-  if (score <= 2) return { label: "Weak", color: "bg-destructive" };
-  if (score === 3 || score === 4) return { label: "Medium", color: "bg-yellow-400" };
-  return { label: "Strong", color: "bg-green-500" };
-}
 
 export function SignUpForm({
   className,
@@ -77,9 +65,6 @@ export function SignUpForm({
     },
     mode: "onTouched",
   });
-  const passwordValue = form.watch("password");
-  const strength = getPasswordStrength(passwordValue || "");
-
   async function handleSignUp(values: SignUpFormValues) {
     setLoading(true);
     setError("");
@@ -103,7 +88,7 @@ export function SignUpForm({
       // The AuthProvider will handle the redirect when it detects the user is authenticated
     } catch (error: unknown) {
       console.error('Signup error:', error);
-      const message = error instanceof Error ? error.message : 'Failed to create account. Please try again.';
+      const message = error instanceof Error ? error.message : 'Creazione dell\'account non riuscita. Riprova.';
       setError(message);
     } finally {
       setLoading(false);
@@ -114,9 +99,9 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-4", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Welcome to Taccuino Chirurgico</CardTitle>
+          <CardTitle>Benvenuto in Taccuino Chirurgico</CardTitle>
           <CardDescription>
-            Sign up to get started
+            Registrati per iniziare
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -130,14 +115,14 @@ export function SignUpForm({
                       control={form.control}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>First Name</FormLabel>
+                          <FormLabel>Nome</FormLabel>
                           <FormControl>
                             <Input
                               id="first-name"
-                              placeholder="John"
+                              placeholder="Mario"
                               disabled={loading}
                               autoComplete="given-name"
-                              aria-label="First Name"
+                              aria-label="Nome"
                               role="textbox"
                               {...field}
                             />
@@ -151,14 +136,14 @@ export function SignUpForm({
                       control={form.control}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Last Name</FormLabel>
+                          <FormLabel>Cognome</FormLabel>
                           <FormControl>
                             <Input
                               id="last-name"
-                              placeholder="Doe"
+                              placeholder="Rossi"
                               disabled={loading}
                               autoComplete="family-name"
-                              aria-label="Last Name"
+                              aria-label="Cognome"
                               role="textbox"
                               {...field}
                             />
@@ -178,7 +163,7 @@ export function SignUpForm({
                           <Input
                             id="email"
                             type="email"
-                            placeholder="john.doe@email.com"
+                            placeholder="nome.cognome@email.com"
                             disabled={loading}
                             autoComplete="email"
                             aria-label="Email"
@@ -208,21 +193,6 @@ export function SignUpForm({
                             {...field}
                           />
                         </FormControl>
-                        {passwordValue && (
-                          <div className="mt-1 flex items-center gap-2 w-full" role="status" aria-live="polite">
-                            <div className="flex-1 flex items-center">
-                              <div
-                                className={`h-2 w-full rounded ${strength.color} transition-all`}
-                                role="progressbar"
-                                aria-valuenow={strength.label === "Weak" ? 33 : strength.label === "Medium" ? 66 : 100}
-                                aria-valuemin={0}
-                                aria-valuemax={100}
-                                aria-label={`Password strength: ${strength.label}`}
-                              />
-                            </div>
-                            <span className="ml-2 text-xs text-muted-foreground whitespace-nowrap">{strength.label} password</span>
-                          </div>
-                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -232,7 +202,7 @@ export function SignUpForm({
                     control={form.control}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
+                        <FormLabel>Conferma password</FormLabel>
                         <FormControl>
                           <Input
                             id="confirm-password"
@@ -240,7 +210,7 @@ export function SignUpForm({
                             placeholder="********"
                             disabled={loading}
                             autoComplete="new-password"
-                            aria-label="Confirm Password"
+                            aria-label="Conferma password"
                             role="textbox"
                             {...field}
                           />
@@ -254,14 +224,14 @@ export function SignUpForm({
                       {error}
                     </div>
                   )}
-                  <Button type="submit" className="w-full" disabled={loading} aria-label="Sign Up" role="button">
-                    {loading ? 'Creating account...' : 'Sign Up'}
+                  <Button type="submit" className="w-full" disabled={loading} aria-label="Registrati" role="button">
+                    {loading ? 'Creazione dell\'account in corso...' : 'Registrati'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Already have an account?{" "}
+                  Hai già un account?{" "}
                   <Link href="/login" className="underline underline-offset-4">
-                    Login
+                    Accedi
                   </Link>
                 </div>
               </div>
@@ -269,9 +239,7 @@ export function SignUpForm({
           </Form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By continuing, you agree to our <Link href="#">Terms of Service</Link> and <Link href="#">Privacy Policy</Link>.
-      </div>
+      
     </div>
   );
 }
