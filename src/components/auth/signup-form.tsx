@@ -2,13 +2,6 @@
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { auth, createUserProfile } from "@/lib/firebase"
@@ -96,150 +89,146 @@ export function SignUpForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-4", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Benvenuto in Taccuino Chirurgico</CardTitle>
-          <CardDescription>
-            Registrati per iniziare
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSignUp)}>
-              <div className="grid gap-4">
-                <div className="grid gap-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      name="firstName"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nome</FormLabel>
-                          <FormControl>
-                            <Input
-                              id="first-name"
-                              placeholder="Mario"
-                              disabled={loading}
-                              autoComplete="given-name"
-                              aria-label="Nome"
-                              role="textbox"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <div className="space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Benvenuto in Taccuino Chirurgico</h1>
+          <p className="text-base text-slate-600 dark:text-slate-300">Registrati per iniziare</p>
+        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSignUp)} className="space-y-5">
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+              <FormField
+                name="firstName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="first-name"
+                        placeholder="Mario"
+                        disabled={loading}
+                        autoComplete="given-name"
+                        aria-label="Nome"
+                        role="textbox"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="lastName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cognome</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="last-name"
+                        placeholder="Rossi"
+                        disabled={loading}
+                        autoComplete="family-name"
+                        aria-label="Cognome"
+                        role="textbox"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="nome.cognome@email.com"
+                      disabled={loading}
+                      autoComplete="email"
+                      aria-label="Email"
+                      role="textbox"
+                      {...field}
                     />
-                    <FormField
-                      name="lastName"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cognome</FormLabel>
-                          <FormControl>
-                            <Input
-                              id="last-name"
-                              placeholder="Rossi"
-                              disabled={loading}
-                              autoComplete="family-name"
-                              aria-label="Cognome"
-                              role="textbox"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="********"
+                      disabled={loading}
+                      autoComplete="new-password"
+                      aria-label="Password"
+                      role="textbox"
+                      {...field}
                     />
-                  </div>
-                  <FormField
-                    name="email"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="nome.cognome@email.com"
-                            disabled={loading}
-                            autoComplete="email"
-                            aria-label="Email"
-                            role="textbox"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="password"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="********"
-                            disabled={loading}
-                            autoComplete="new-password"
-                            aria-label="Password"
-                            role="textbox"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="confirmPassword"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Conferma password</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="confirm-password"
-                            type="password"
-                            placeholder="********"
-                            disabled={loading}
-                            autoComplete="new-password"
-                            aria-label="Conferma password"
-                            role="textbox"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {error && (
-                    <div className="text-sm text-destructive text-center">
-                      {error}
-                    </div>
-                  )}
-                  <Button type="submit" className="w-full" disabled={loading} aria-label="Registrati" role="button">
-                    {loading ? 'Creazione dell\'account in corso...' : 'Registrati'}
-                  </Button>
-                </div>
-                <div className="text-center text-sm">
-                  Hai già un account?{" "}
-                  <Link href="/login" className="underline underline-offset-4">
-                    Accedi
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-      
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="confirmPassword"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conferma password</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="********"
+                      disabled={loading}
+                      autoComplete="new-password"
+                      aria-label="Conferma password"
+                      role="textbox"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {error && <div className="text-center text-sm text-destructive">{error}</div>}
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
+              disabled={loading}
+              aria-label="Registrati"
+              role="button"
+            >
+              {loading ? "Creazione dell'account in corso..." : "Registrati"}
+            </Button>
+          </form>
+        </Form>
+      </div>
+      <div className="text-center text-sm">
+        Hai già un account?{" "}
+        <Link
+          href="/login"
+          className="font-medium text-blue-600 underline underline-offset-4 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+        >
+          Accedi
+        </Link>
+      </div>
     </div>
   );
 }

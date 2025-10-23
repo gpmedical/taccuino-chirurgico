@@ -2,13 +2,6 @@
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { signInWithEmailAndPassword } from "firebase/auth"
@@ -64,92 +57,88 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-4", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Bentornato</CardTitle>
-          <CardDescription>
-            Accedi al tuo account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)}>
-              <div className="grid gap-4">
-                <div className="flex flex-col gap-4">
-                  <FormField
-                    name="email"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="nome.cognome@email.com"
-                            disabled={loading}
-                            autoComplete="email"
-                            aria-label="Email"
-                            role="textbox"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="password"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center">
-                          <FormLabel>Password</FormLabel>
-                          <Link
-                            href="/forgot-password"
-                            className="ml-auto text-sm underline-offset-4 hover:underline"
-                          >
-                            Hai dimenticato la password?
-                          </Link>
-                        </div>
-                        <FormControl>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="********"
-                            disabled={loading}
-                            autoComplete="current-password"
-                            aria-label="Password"
-                            role="textbox"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {error && (
-                    <div className="text-sm text-destructive text-center">
-                      {error}
-                    </div>
-                  )}
-                  <Button type="submit" className="w-full" disabled={loading} aria-label="Accedi" role="button">
-                    {loading ? 'Accesso in corso...' : 'Accedi'}
-                  </Button>
-                </div>
-                <div className="text-center text-sm">
-                  Non hai un account?{" "}
-                  <Link href="/signup" className="underline underline-offset-4">
-                    Registrati
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <div className="space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Bentornato</h1>
+          <p className="text-base text-slate-600 dark:text-slate-300">Accedi al tuo account</p>
+        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-5">
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="nome.cognome@email.com"
+                      disabled={loading}
+                      autoComplete="email"
+                      aria-label="Email"
+                      role="textbox"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-2">
+                    <FormLabel>Password</FormLabel>
+                    <Link
+                      href="/forgot-password"
+                      className="ml-auto text-sm font-medium text-blue-600 underline-offset-4 hover:text-blue-700 hover:underline dark:text-blue-300 dark:hover:text-blue-200"
+                    >
+                      Hai dimenticato la password?
+                    </Link>
+                  </div>
+                  <FormControl>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="********"
+                      disabled={loading}
+                      autoComplete="current-password"
+                      aria-label="Password"
+                      role="textbox"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {error && <div className="text-center text-sm text-destructive">{error}</div>}
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
+              disabled={loading}
+              aria-label="Accedi"
+              role="button"
+            >
+              {loading ? "Accesso in corso..." : "Accedi"}
+            </Button>
+          </form>
+        </Form>
+      </div>
+      <div className="text-center text-sm">
+        Non hai un account?{" "}
+        <Link
+          href="/signup"
+          className="font-medium text-blue-600 underline underline-offset-4 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+        >
+          Registrati
+        </Link>
+      </div>
     </div>
   )
 }
