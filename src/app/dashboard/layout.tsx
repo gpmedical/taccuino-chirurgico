@@ -142,8 +142,8 @@ export default function DashboardLayout({
                 </div>
               </div>
               <Button
-                variant="outline"
-                className="mt-3 w-full border-blue-200/70 text-blue-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
+                variant="destructive"
+                className="mt-3 w-full cursor-pointer"
                 onClick={signOut}
               >
                 Esci
