@@ -54,20 +54,20 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       <section className="relative overflow-hidden rounded-3xl border border-blue-200/60 bg-white/80 p-6 shadow-lg shadow-blue-100/60 backdrop-blur-sm dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40 sm:p-10">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_60%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.35),_transparent_55%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.25),transparent_60%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.35),transparent_55%)]" />
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl space-y-4">
             <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
-              Benvenuto {user?.displayName ? `, ${user.displayName}` : ""}
+              Benvenuto{user?.displayName ? `, ${user.displayName}` : ""}
             </p>
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">
-              Organizza la tua attività chirurgica con un solo sguardo
+              Organizza la tua attività chirurgica con un solo click
             </h2>
             <p className="text-base text-slate-600 dark:text-slate-300">
               Monitora interventi, patologie, casi clinici e follow-up dei pazienti in un ambiente sicuro e sincronizzato.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
+              <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
                 <Link href="/dashboard/interventi-chirurgici" className="flex items-center gap-2">
                   Nuovo intervento
                   <ArrowRight className="h-4 w-4" />
@@ -80,7 +80,7 @@ export default function Dashboard() {
           </div>
           <div className="grid w-full max-w-sm gap-4 rounded-2xl border border-blue-200/60 bg-white/70 p-4 shadow-md shadow-blue-200/50 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/40">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/40">
                 <ClipboardList className="h-6 w-6" />
               </div>
               <div>
@@ -89,20 +89,20 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/40">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-400 via-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/40">
                 <Stethoscope className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Patologie aggiornate</p>
+                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Patologie chirurgiche</p>
                 <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">12</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/40">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-300 via-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/40">
                 <CalendarCheck2 className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Follow-up imminenti</p>
+                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Pazienti salvati</p>
                 <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">5</p>
               </div>
             </div>
@@ -125,7 +125,7 @@ export default function Dashboard() {
                 href={action.href}
                 className="group flex items-start gap-4 rounded-2xl border border-transparent bg-blue-50/40 p-4 transition hover:border-blue-200 hover:bg-blue-50 dark:bg-slate-900/60 dark:hover:border-blue-800/70 dark:hover:bg-slate-900"
               >
-                <div className="rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-md shadow-blue-500/40">
+                <div className="rounded-xl bg-linear-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-md shadow-blue-500/40">
                   <action.icon className="h-5 w-5" />
                 </div>
                 <div className="space-y-1">

@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation"
 import {
   CircleUserRound,
   Files,
-  HeartPulse,
+  Home,
   RefreshCw,
   Shapes,
+  Stethoscope,
   Syringe,
-  UserCog,
 } from "lucide-react"
 
 import Toggle from "@/app/toggle"
@@ -44,9 +44,9 @@ import { useAuth } from "@/contexts/auth-context"
 
 const NAVIGATION = [
   {
-    title: "Panoramica",
+    title: "Cruscotto",
     href: "/dashboard",
-    icon: CircleUserRound,
+    icon: Home,
   },
   {
     title: "Interventi chirurgici",
@@ -56,7 +56,7 @@ const NAVIGATION = [
   {
     title: "Patologie chirurgiche",
     href: "/dashboard/patologie-chirurgiche",
-    icon: HeartPulse,
+    icon: Stethoscope,
   },
   {
     title: "Casi clinici",
@@ -64,19 +64,14 @@ const NAVIGATION = [
     icon: Files,
   },
   {
-    title: "Follow-Up Pazienti",
-    href: "/dashboard/follow-up-pazienti",
+    title: "Pazienti",
+    href: "/dashboard/pazienti",
     icon: RefreshCw,
   },
   {
     title: "Miscellanea",
     href: "/dashboard/miscellanea",
     icon: Shapes,
-  },
-  {
-    title: "Account",
-    href: "/dashboard/account",
-    icon: UserCog,
   },
 ] as const
 
@@ -91,17 +86,17 @@ export default function DashboardLayout({
   return (
     <AuthGuard requireAuth>
       <SidebarProvider>
-        <div className="relative flex min-h-svh w-full bg-gradient-to-br from-sky-50 via-white to-blue-100 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 dark:text-slate-100">
-          <Sidebar className="border-border/60 bg-gradient-to-b from-white/90 via-blue-50/80 to-sky-100/70 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:from-slate-950/80 dark:via-slate-900/70 dark:to-blue-950/60">
+        <div className="relative flex min-h-svh w-full bg-linear-to-br from-sky-50 via-white to-blue-100 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 dark:text-slate-100">
+          <Sidebar className="border-border/60 bg-linear-to-b from-white/90 via-blue-50/80 to-sky-100/70 backdrop-blur supports-backdrop-filter:bg-white/70 dark:from-slate-950/80 dark:via-slate-900/70 dark:to-blue-950/60">
             <SidebarHeader className="px-4 pb-3 pt-8">
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2 text-lg font-semibold text-blue-700 transition hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
               >
-                <div className="rounded-xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 p-2 text-white shadow-md shadow-blue-500/40 dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
+                <div className="rounded-xl bg-linear-to-br from-sky-500 via-blue-600 to-indigo-600 p-2 text-white shadow-md shadow-blue-500/40 dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
                   <CircleUserRound className="h-5 w-5" />
                 </div>
-                <span className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
+                <span className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
                   Taccuino Chirurgico
                 </span>
               </Link>
@@ -144,9 +139,6 @@ export default function DashboardLayout({
                   <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
                     {user?.displayName || "Chirurgo"}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {user?.email || "Account professionale"}
-                  </span>
                 </div>
               </div>
               <Button
@@ -160,10 +152,10 @@ export default function DashboardLayout({
             <SidebarRail />
           </Sidebar>
           <SidebarInset className="bg-transparent">
-            <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-blue-200/70 bg-white/75 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:border-blue-900/60 dark:bg-slate-950/80 md:px-8">
+            <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-blue-200/70 bg-white/75 px-4 backdrop-blur-md supports-backdrop-filter:bg-white/60 dark:border-blue-900/60 dark:bg-slate-950/80 md:px-8">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="text-blue-700 hover:bg-blue-100 hover:text-blue-900 dark:text-blue-200 dark:hover:bg-slate-900" />
-                <h1 className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-lg font-semibold text-transparent md:text-2xl">
+                <h1 className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-lg font-semibold text-transparent md:text-2xl">
                   Taccuino Chirurgico
                 </h1>
               </div>
@@ -177,7 +169,7 @@ export default function DashboardLayout({
               </div>
             </header>
             <div className="relative flex-1 px-4 py-6 md:px-10">
-              <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(30,64,175,0.25),_transparent_60%)]" />
+              <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_65%)] dark:bg-[radial-gradient(circle_at_top,rgba(30,64,175,0.25),transparent_60%)]" />
               <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
                 {children}
               </div>

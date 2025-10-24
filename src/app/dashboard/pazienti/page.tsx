@@ -34,13 +34,13 @@ const completed = [
   },
 ]
 
-export default function FollowUpPazientiPage() {
+export default function PazientiPage() {
   return (
     <DashboardSection
-      title="Follow-Up Pazienti"
-      description="Monitora lo stato dei pazienti dopo l'intervento e coordina appuntamenti, controlli e comunicazioni."
+      title="Pazienti"
+      description="Salva i tuoi pazienti da seguire per il follow-up."
       actions={
-        <Button asChild className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
+        <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
           <Link href="/dashboard/follow-up-pazienti/nuovo" className="flex items-center gap-2">
             Nuovo follow-up
             <ArrowRight className="h-4 w-4" />
@@ -62,7 +62,7 @@ export default function FollowUpPazientiPage() {
               <div key={visit.patient} className="space-y-2 rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 dark:border-blue-900/60 dark:bg-slate-900/60">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-slate-900 dark:text-slate-100">{visit.patient}</p>
-                  <Badge className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/30">
+                  <Badge className="bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/30">
                     {visit.status}
                   </Badge>
                 </div>
@@ -83,7 +83,7 @@ export default function FollowUpPazientiPage() {
           <CardContent className="space-y-4">
             {completed.map((item) => (
               <div key={item.patient} className="flex items-start gap-4 rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 dark:border-blue-900/60 dark:bg-slate-900/60">
-                <div className="rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-sm shadow-blue-500/30">
+                <div className="rounded-xl bg-linear-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-sm shadow-blue-500/30">
                   <Clock4 className="h-5 w-5" />
                 </div>
                 <div className="space-y-1">

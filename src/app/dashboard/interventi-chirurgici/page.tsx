@@ -40,7 +40,7 @@ export default function InterventiChirurgiciPage() {
       title="Interventi chirurgici"
       description="Documenta con precisione ogni fase dell'atto chirurgico: preparazione, esecuzione, team coinvolto e follow-up."
       actions={
-        <Button asChild className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
+        <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
           <Link href="/dashboard/interventi-chirurgici/nuovo" className="flex items-center gap-2">
             Nuovo intervento
             <ArrowRight className="h-4 w-4" />
@@ -68,7 +68,7 @@ export default function InterventiChirurgiciPage() {
                     <p className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</p>
                     <p className="text-sm text-slate-600 dark:text-slate-300">Registrato il {item.date}</p>
                   </div>
-                  <span className="rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-blue-500/30">
+                  <span className="rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-blue-500/30">
                     {item.status}
                   </span>
                 </div>

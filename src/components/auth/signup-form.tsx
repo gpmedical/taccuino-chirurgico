@@ -210,7 +210,7 @@ export function SignUpForm({
             {error && <div className="text-center text-sm text-destructive">{error}</div>}
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
+              className="w-full bg-linear-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-200/60 transition hover:from-sky-600 hover:to-blue-700 focus-visible:ring-blue-500/40"
               disabled={loading}
               aria-label="Registrati"
               role="button"

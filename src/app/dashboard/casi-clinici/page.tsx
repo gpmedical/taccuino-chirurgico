@@ -39,7 +39,7 @@ export default function CasiCliniciPage() {
       title="Casi clinici"
       description="Raccogli dettagli clinici, immagini diagnostiche e percorsi terapeutici condivisi con il team multidisciplinare."
       actions={
-        <Button asChild className="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
+        <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
           <Link href="/dashboard/casi-clinici/nuovo" className="flex items-center gap-2">
             Nuovo caso clinico
             <ArrowRight className="h-4 w-4" />
@@ -61,7 +61,7 @@ export default function CasiCliniciPage() {
               <div key={item.title} className="space-y-3 rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 dark:border-blue-900/60 dark:bg-slate-900/60">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-slate-900 dark:text-slate-100">{item.title}</p>
-                  <span className="rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-blue-500/30">
+                  <span className="rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-blue-500/30">
                     {item.status}
                   </span>
                 </div>
@@ -84,7 +84,7 @@ export default function CasiCliniciPage() {
           <CardContent className="space-y-4">
             {collaborators.map((item) => (
               <div key={item.name} className="flex items-start gap-4 rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 dark:border-blue-900/60 dark:bg-slate-900/60">
-                <div className="rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-sm shadow-blue-500/30">
+                <div className="rounded-xl bg-linear-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-sm shadow-blue-500/30">
                   <FolderKanban className="h-5 w-5" />
                 </div>
                 <div className="space-y-1">

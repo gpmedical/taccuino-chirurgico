@@ -46,7 +46,7 @@ export default function MiscellaneaPage() {
           <CardContent className="space-y-4">
             {resources.map((resource) => (
               <div key={resource.title} className="flex items-start gap-4 rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 dark:border-blue-900/60 dark:bg-slate-900/60">
-                <div className="rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-sm shadow-blue-500/30">
+                <div className="rounded-xl bg-linear-to-br from-sky-400 via-blue-500 to-indigo-500 p-2 text-white shadow-sm shadow-blue-500/30">
                   <resource.icon className="h-5 w-5" />
                 </div>
                 <div className="space-y-1">
