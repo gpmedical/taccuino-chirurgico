@@ -1,13 +1,15 @@
 "use client"
 
-import type { SVGProps } from "react"
 import Link from "next/link"
 import {
   ArrowRight,
-  CalendarCheck2,
+  Calendar,
   ClipboardList,
+  History,
   NotebookPen,
+  Slice,
   Stethoscope,
+  UsersRound,
 } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,22 +18,22 @@ import { useAuth } from "@/contexts/auth-context"
 
 const quickActions = [
   {
-    title: "Registra un intervento",
-    description: "Annota dettagli tecnici, complicanze e note operative in tempo reale.",
+    title: "Registra intervento",
+    description: "Annota dettagli tecnici, steps chirurgici e \"tips and tricks\".",
     href: "/dashboard/interventi-chirurgici",
-  icon: ScalpelIcon,
+    icon: Slice,
   },
   {
-    title: "Aggiorna una patologia",
-    description: "Confronta linee guida, protocolli interni e appunti personali.",
+    title: "Crea patologia",
+    description: "Salva i protocolli per la gestione delle più comuni patologie.",
     href: "/dashboard/patologie-chirurgiche",
     icon: Stethoscope,
   },
   {
-    title: "Carica un caso clinico",
-    description: "Documenta percorsi terapeutici, imaging e follow-up multidisciplinari.",
+    title: "Carica caso clinico",
+    description: "Registra presentazione e gestione di casi clinici interessanti.",
     href: "/dashboard/casi-clinici",
-    icon: NotebookPen,
+    icon: ClipboardList,
   },
 ]
 
@@ -61,10 +63,10 @@ export default function Dashboard() {
               Benvenuto{user?.displayName ? `, ${user.displayName}` : ""}
             </p>
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">
-              Organizza la tua attività chirurgica con un solo click
+              Organizza la tua attività chirurgica in un solo click
             </h2>
             <p className="text-base text-slate-600 dark:text-slate-300">
-              Monitora interventi, patologie, casi clinici e follow-up dei pazienti in un ambiente sicuro e sincronizzato.
+              Salva dettagli su interventi chirurgici, la gestione delle patologie chirurgiche più comuni, i casi clinici più interessanti e i tuoi pazienti da seguire nel tempo.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
@@ -74,14 +76,14 @@ export default function Dashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="border-blue-300/80 text-blue-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/70 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900">
-                <Link href="/dashboard/follow-up-pazienti">Gestisci follow-up</Link>
+                <Link href="/dashboard/follow-up-pazienti">Gestisci pazienti</Link>
               </Button>
             </div>
           </div>
           <div className="grid w-full max-w-sm gap-4 rounded-2xl border border-blue-200/60 bg-white/70 p-4 shadow-md shadow-blue-200/50 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/40">
-                <ClipboardList className="h-6 w-6" />
+                <Slice className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Interventi registrati</p>
@@ -99,7 +101,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-300 via-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/40">
-                <CalendarCheck2 className="h-6 w-6" />
+                <UsersRound className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Pazienti salvati</p>
@@ -141,7 +143,7 @@ export default function Dashboard() {
         <Card className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/50 backdrop-blur-sm transition hover:shadow-xl hover:shadow-blue-200/70 dark:border-blue-900/60 dark:bg-slate-950/60 dark:shadow-blue-950/40">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-200">
-              <ClipboardList className="h-5 w-5" />
+              <History className="h-5 w-5" />
               Attività recenti
             </CardTitle>
           </CardHeader>
@@ -164,7 +166,7 @@ export default function Dashboard() {
         <Card className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/50 backdrop-blur-sm transition hover:shadow-xl hover:shadow-blue-200/70 dark:border-blue-900/60 dark:bg-slate-950/60 dark:shadow-blue-950/40">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-200">
-              <CalendarCheck2 className="h-5 w-5" />
+              <Calendar className="h-5 w-5" />
               Prossimi appuntamenti
             </CardTitle>
           </CardHeader>
@@ -186,20 +188,3 @@ export default function Dashboard() {
   )
 }
 
-function ScalpelIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={"h-5 w-5"}
-    >
-      <path d="M3 17l6-6 4 4-6 6H3z" />
-      <path d="M14 7l7-7" />
-    </svg>
-  )
-}

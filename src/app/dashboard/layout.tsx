@@ -1,15 +1,15 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  CircleUserRound,
-  Files,
+  ClipboardList,
   Home,
-  RefreshCw,
-  Shapes,
+  PackageOpen,
+  Slice,
   Stethoscope,
-  Syringe,
+  UsersRound,
 } from "lucide-react"
 
 import Toggle from "@/app/toggle"
@@ -51,7 +51,7 @@ const NAVIGATION = [
   {
     title: "Interventi chirurgici",
     href: "/dashboard/interventi-chirurgici",
-    icon: Syringe,
+    icon: Slice,
   },
   {
     title: "Patologie chirurgiche",
@@ -61,17 +61,17 @@ const NAVIGATION = [
   {
     title: "Casi clinici",
     href: "/dashboard/casi-clinici",
-    icon: Files,
+    icon: ClipboardList,
   },
   {
     title: "Pazienti",
     href: "/dashboard/pazienti",
-    icon: RefreshCw,
+    icon: UsersRound,
   },
   {
     title: "Miscellanea",
     href: "/dashboard/miscellanea",
-    icon: Shapes,
+    icon: PackageOpen,
   },
 ] as const
 
@@ -93,8 +93,13 @@ export default function DashboardLayout({
                 href="/dashboard"
                 className="flex items-center gap-2 text-lg font-semibold text-blue-700 transition hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
               >
-                <div className="rounded-xl bg-linear-to-br from-sky-500 via-blue-600 to-indigo-600 p-2 text-white shadow-md shadow-blue-500/40 dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
-                  <CircleUserRound className="h-5 w-5" />
+                <div>
+                  <Image
+                    src={"/Logo.png"}
+                    height={50}
+                    width={50}
+                    alt="Logo"
+                  />
                 </div>
                 <span className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
                   Taccuino Chirurgico
@@ -129,18 +134,6 @@ export default function DashboardLayout({
               </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="mt-auto px-4 pb-6">
-              <div className="flex items-center gap-3 rounded-2xl border border-blue-200/60 bg-white/70 p-3 shadow-sm shadow-blue-100/60 backdrop-blur-sm dark:border-blue-900/60 dark:bg-slate-950/60 dark:shadow-blue-950/40">
-                <Avatar className="h-10 w-10 border border-blue-200/70 dark:border-blue-900/70">
-                  <AvatarFallback className="bg-blue-600/90 text-white dark:bg-blue-500/80">
-                    {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "TC"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-1 flex-col">
-                  <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-                    {user?.displayName || "Chirurgo"}
-                  </span>
-                </div>
-              </div>
               <Button
                 variant="destructive"
                 className="mt-3 w-full cursor-pointer"

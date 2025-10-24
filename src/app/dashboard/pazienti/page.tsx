@@ -42,7 +42,7 @@ export default function PazientiPage() {
       actions={
         <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
           <Link href="/dashboard/follow-up-pazienti/nuovo" className="flex items-center gap-2">
-            Nuovo follow-up
+            Nuovo paziente
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
