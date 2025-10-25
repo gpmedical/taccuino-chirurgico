@@ -113,7 +113,8 @@ export default function DashboardLayout({
                   <SidebarMenu>
                     {NAVIGATION.map((item) => {
                       const isActive =
-                        pathname === item.href || pathname.startsWith(`${item.href}/`)
+                        pathname === item.href ||
+                        (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`))
 
                       return (
                       <SidebarMenuItem key={item.href}>
