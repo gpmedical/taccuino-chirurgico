@@ -14,6 +14,7 @@ import {
   orderBy,
   query,
 } from "firebase/firestore"
+import type { Timestamp } from "firebase/firestore"
 import {
   ArrowLeft,
   ClipboardList,
@@ -106,8 +107,32 @@ const mapTechniqueToFormValues = (
   altro: technique.altro ?? "",
 })
 
-const formatDateTime = (timestamp?: { toDate?: () => Date }) => {
-  if (!timestamp?.toDate) return "—"
+type TimestampLike = Timestamp | Date | { toDate?: () => Date } | null | undefined
+
+const formatDateTime = (timestamp?: TimestampLike) => {
+  if (!timestamp) return "—"
+
+  const date = (() => {
+    if (timestamp instanceof Date) {
+      return timestamp
+    }
+
+    const withToDate = timestamp as Timestamp | { toDate?: () => Date }
+
+    if (typeof withToDate?.toDate === "function") {
+      try {
+        return withToDate.toDate()
+      } catch (error) {
+        console.error("Errore nel convertire il timestamp della tecnica:", error)
+        return null
+      }
+    }
+
+    return null
+  })()
+
+  if (!date) return "—"
+
   try {
     return new Intl.DateTimeFormat("it-IT", {
       day: "2-digit",
@@ -115,7 +140,7 @@ const formatDateTime = (timestamp?: { toDate?: () => Date }) => {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }).format(timestamp.toDate())
+    }).format(date)
   } catch (error) {
     console.error("Errore nel formattare la data della tecnica:", error)
     return "—"
