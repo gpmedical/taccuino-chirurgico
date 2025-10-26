@@ -18,11 +18,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts/auth-context"
 import { createProcedureWithTechnique } from "@/lib/surgical-procedures"
 
-const longTextSchema = z
-  .string()
-  .max(4000, "Il testo inserito è troppo lungo")
-  .optional()
-  .transform((value) => value?.trim() ?? "")
+const longTextSchema = z.preprocess(
+  (value) => (typeof value === "string" ? value : ""),
+  z
+    .string()
+    .max(4000, "Il testo inserito è troppo lungo")
+    .transform((value) => value.trim())
+)
 
 const formSchema = z.object({
   procedura: z

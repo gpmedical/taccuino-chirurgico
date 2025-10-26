@@ -60,11 +60,13 @@ import {
 } from "@/lib/surgical-procedures"
 import type { SurgicalProcedure, SurgicalTechnique } from "@/types/interventi"
 
-const longTextSchema = z
-  .string()
-  .max(4000, "Il testo inserito è troppo lungo")
-  .optional()
-  .transform((value) => value?.trim() ?? "")
+const longTextSchema = z.preprocess(
+  (value) => (typeof value === "string" ? value : ""),
+  z
+    .string()
+    .max(4000, "Il testo inserito è troppo lungo")
+    .transform((value) => value.trim())
+)
 
 const techniqueSchema = z.object({
   tecnica: z
