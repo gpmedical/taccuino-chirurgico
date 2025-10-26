@@ -18,13 +18,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts/auth-context"
 import { createProcedureWithTechnique } from "@/lib/surgical-procedures"
 
-const longTextSchema = z.preprocess(
-  (value) => (typeof value === "string" ? value : ""),
-  z
-    .string()
-    .max(4000, "Il testo inserito è troppo lungo")
-    .transform((value) => value.trim())
-)
+const longTextSchema = z.string().max(4000, "Il testo inserito è troppo lungo").trim()
 
 const formSchema = z.object({
   procedura: z
@@ -36,7 +30,7 @@ const formSchema = z.object({
     .string()
     .min(3, "Inserisci almeno 3 caratteri")
     .max(120, "Massimo 120 caratteri")
-    .transform((value) => value.trim()),
+    .trim(),
   preOperatorio: longTextSchema,
   posizione: longTextSchema,
   accesso: longTextSchema,
