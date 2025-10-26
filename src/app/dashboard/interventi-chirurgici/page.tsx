@@ -9,6 +9,7 @@ import {
   query,
   where,
 } from "firebase/firestore"
+import type { Timestamp } from "firebase/firestore"
 
 import { DashboardSection } from "@/components/dashboard/section-shell"
 import { Button } from "@/components/ui/button"
@@ -18,14 +19,38 @@ import { db } from "@/lib/firebase"
 import { useAuth } from "@/contexts/auth-context"
 import type { SurgicalProcedure } from "@/types/interventi"
 
-const formatTimestamp = (timestamp?: { toDate?: () => Date }) => {
-  if (!timestamp?.toDate) return "di recente"
+type TimestampLike = Timestamp | Date | { toDate?: () => Date } | null | undefined
+
+const formatTimestamp = (timestamp?: TimestampLike) => {
+  if (!timestamp) return "di recente"
+
+  const date = (() => {
+    if (timestamp instanceof Date) {
+      return timestamp
+    }
+
+    const withToDate = timestamp as Timestamp | { toDate?: () => Date }
+
+    if (typeof withToDate?.toDate === "function") {
+      try {
+        return withToDate.toDate()
+      } catch (error) {
+        console.error("Errore nel formattare la data dell'intervento:", error)
+        return null
+      }
+    }
+
+    return null
+  })()
+
+  if (!date) return "di recente"
+
   try {
     return new Intl.DateTimeFormat("it-IT", {
       day: "2-digit",
       month: "long",
       year: "numeric",
-    }).format(timestamp.toDate())
+    }).format(date)
   } catch (error) {
     console.error("Errore nel formattare la data dell'intervento:", error)
     return "di recente"
