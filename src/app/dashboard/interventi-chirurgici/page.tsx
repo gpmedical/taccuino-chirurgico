@@ -1,98 +1,187 @@
+"use client"
+
 import Link from "next/link"
-import { ArrowRight, FilePlus2, Layers3 } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { CalendarClock, Layers3, PlusCircle } from "lucide-react"
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore"
 
 import { DashboardSection } from "@/components/dashboard/section-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { db } from "@/lib/firebase"
+import { useAuth } from "@/contexts/auth-context"
+import type { SurgicalProcedure } from "@/types/interventi"
 
-const templates = [
-  {
-    title: "Scheda intervento standard",
-    description: "Struttura di base per registrare tempi operatori, equipe e note post-operatorie.",
-  },
-  {
-    title: "Checklist laparoscopia",
-    description: "Template focalizzato su strumenti utilizzati, complicanze e follow-up dedicato.",
-  },
-]
+const formatTimestamp = (timestamp?: { toDate?: () => Date }) => {
+  if (!timestamp?.toDate) return "di recente"
+  try {
+    return new Intl.DateTimeFormat("it-IT", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(timestamp.toDate())
+  } catch (error) {
+    console.error("Errore nel formattare la data dell'intervento:", error)
+    return "di recente"
+  }
+}
 
-const recentInterventions = [
-  {
-    name: "Colecistectomia laparoscopica",
-    date: "12 aprile 2024",
-    status: "In follow-up",
-  },
-  {
-    name: "Resezione intestinale",
-    date: "8 aprile 2024",
-    status: "Concluso",
-  },
-  {
-    name: "Ernioplastica inguinale",
-    date: "4 aprile 2024",
-    status: "In revisione",
-  },
-]
+function ProcedureSkeleton() {
+  return (
+    <Card className="border-blue-200/70 bg-white/70 shadow-sm shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
+      <CardHeader className="space-y-3">
+        <Skeleton className="h-6 w-2/3 rounded-full" />
+        <Skeleton className="h-4 w-1/3 rounded-full" />
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <Skeleton className="h-3 w-full rounded-full" />
+        <Skeleton className="h-3 w-5/6 rounded-full" />
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function InterventiChirurgiciPage() {
+  const { user } = useAuth()
+  const [procedures, setProcedures] = useState<SurgicalProcedure[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!user) {
+      setProcedures([])
+      setLoading(false)
+      return
+    }
+
+    const proceduresQuery = query(
+      collection(db, "surgicalProcedures"),
+      where("userId", "==", user.uid)
+    )
+
+    const unsubscribe = onSnapshot(
+      proceduresQuery,
+      (snapshot) => {
+        const docs: SurgicalProcedure[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as SurgicalProcedure[]
+
+        setProcedures(docs)
+        setLoading(false)
+        setError(null)
+      },
+      (err) => {
+        console.error("Errore nel recupero degli interventi:", err)
+        setError("Impossibile recuperare gli interventi al momento.")
+        setLoading(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [user])
+
+  const sortedProcedures = useMemo(() => {
+    return [...procedures].sort((a, b) => {
+      const aTime = a.updatedAt?.toMillis?.() ?? a.createdAt?.toMillis?.() ?? 0
+      const bTime = b.updatedAt?.toMillis?.() ?? b.createdAt?.toMillis?.() ?? 0
+      return bTime - aTime
+    })
+  }, [procedures])
+
   return (
     <DashboardSection
       title="Interventi chirurgici"
-      description="Documenta con precisione ogni fase dell'atto chirurgico: preparazione, esecuzione, team coinvolto e follow-up."
+      description="Gestisci tutte le tue procedure annotate, aggiungi nuove tecniche e consulta rapidamente i dettagli già registrati."
       actions={
-        <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
+        <Button
+          asChild
+          className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700"
+        >
           <Link href="/dashboard/interventi-chirurgici/nuovo" className="flex items-center gap-2">
             Nuovo intervento
-            <ArrowRight className="h-4 w-4" />
+            <PlusCircle className="h-4 w-4" />
           </Link>
         </Button>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <Card className="border-blue-200/70 bg-white/80 shadow-sm shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-200">
-              <FilePlus2 className="h-5 w-5" />
-              Ultimi interventi
-            </CardTitle>
-            <CardDescription>Rimani aggiornato sulle ultime procedure annotate.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentInterventions.map((item) => (
-              <div
-                key={item.name}
-                className="rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 transition hover:border-blue-200 hover:bg-blue-50 dark:border-blue-900/60 dark:bg-slate-900/60 dark:hover:border-blue-800/70"
+      <div className="space-y-6">
+        {loading ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <ProcedureSkeleton key={index} />
+            ))}
+          </div>
+        ) : null}
+
+        {!loading && error ? (
+          <Card className="border-rose-200/70 bg-rose-50/70 shadow-sm shadow-rose-100/60 dark:border-rose-900/60 dark:bg-rose-950/70 dark:shadow-rose-950/40">
+            <CardHeader>
+              <CardTitle className="text-rose-700 dark:text-rose-200">Si è verificato un errore</CardTitle>
+              <CardDescription>{error}</CardDescription>
+            </CardHeader>
+          </Card>
+        ) : null}
+
+        {!loading && !error && sortedProcedures.length === 0 ? (
+          <Card className="border-blue-200/70 bg-white/70 shadow-sm shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
+            <CardHeader className="space-y-3 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/40">
+                <Layers3 className="h-6 w-6" />
+              </div>
+              <CardTitle className="text-blue-800 dark:text-blue-200">Nessun intervento registrato</CardTitle>
+              <CardDescription>
+                Aggiungi il tuo primo intervento chirurgico per iniziare a costruire il tuo taccuino digitale.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <Button
+                asChild
+                className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">Registrato il {item.date}</p>
-                  </div>
-                  <span className="rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-blue-500/30">
-                    {item.status}
-                  </span>
-                </div>
-              </div>
+                <Link href="/dashboard/interventi-chirurgici/nuovo" className="flex items-center gap-2">
+                  Nuovo intervento
+                  <PlusCircle className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {!loading && !error && sortedProcedures.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {sortedProcedures.map((procedure) => (
+              <Card
+                key={procedure.id}
+                className="group border-blue-200/70 bg-white/80 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/50 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/50"
+              >
+                <Link href={`/dashboard/interventi-chirurgici/${procedure.id}`} className="flex h-full flex-col">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
+                      {procedure.procedura}
+                      <Layers3 className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
+                    </CardTitle>
+                    <CardDescription>
+                      Tocca per visualizzare tecniche, accorgimenti e checklist operative personalizzate.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="mt-auto">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                      <CalendarClock className="h-4 w-4 text-blue-500" />
+                      Aggiornato il {formatTimestamp(procedure.updatedAt ?? procedure.createdAt)}
+                    </div>
+                  </CardContent>
+                </Link>
+              </Card>
             ))}
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200/70 bg-white/80 shadow-sm shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-200">
-              <Layers3 className="h-5 w-5" />
-              Template consigliati
-            </CardTitle>
-            <CardDescription>Avvia rapidamente una nuova scheda di intervento.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {templates.map((template) => (
-              <div key={template.title} className="space-y-2 rounded-2xl border border-blue-100/70 bg-blue-50/40 p-4 dark:border-blue-900/60 dark:bg-slate-900/60">
-                <p className="font-semibold text-slate-900 dark:text-slate-100">{template.title}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300">{template.description}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+          </div>
+        ) : null}
       </div>
     </DashboardSection>
   )
