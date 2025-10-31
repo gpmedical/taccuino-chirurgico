@@ -36,7 +36,7 @@ const formSchema = z.object({
   accesso: longTextSchema,
   stepChirurgici: longTextSchema,
   tipsAndTricks: longTextSchema,
-  attenzioni: longTextSchema,
+  attenzione: longTextSchema,
   postOperatorio: longTextSchema,
   altro: longTextSchema,
 })
@@ -51,7 +51,7 @@ const defaultValues: ProcedureFormValues = {
   accesso: "",
   stepChirurgici: "",
   tipsAndTricks: "",
-  attenzioni: "",
+  attenzione: "",
   postOperatorio: "",
   altro: "",
 }
@@ -246,7 +246,7 @@ export default function NuovoInterventoPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="attenzioni"
+                  name="attenzione"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Fare attenzione a</FormLabel>

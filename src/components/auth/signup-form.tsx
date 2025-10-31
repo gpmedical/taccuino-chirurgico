@@ -75,6 +75,8 @@ export function SignUpForm({
         await createUserProfile(userCredential.user.uid, {
           firstName: values.firstName,
           lastName: values.lastName,
+          email: values.email,
+          provider: userCredential.user.providerData[0]?.providerId ?? "email",
         });
       }
 

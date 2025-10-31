@@ -25,13 +25,16 @@ export const analytics = typeof window !== 'undefined' && isSupported().then(sup
 
 export async function createUserProfile(
   userId: string,
-  data: Omit<UserProfile, 'userId' | 'createdAt' | 'updatedAt'>
+  data: Partial<Omit<UserProfile, 'userId' | 'createdAt' | 'updatedAt'>>
 ) {
   const profileRef = doc(collection(db, 'profiles'), userId);
   const timestamp = serverTimestamp();
   const profileData: UserProfile = {
     userId,
-    ...data,
+    firstName: data.firstName?.trim() ?? '',
+    lastName: data.lastName?.trim() ?? '',
+    email: data.email?.toLowerCase() ?? '',
+    provider: data.provider ?? 'email',
     createdAt: timestamp as unknown as Timestamp,
     updatedAt: timestamp as unknown as Timestamp,
   };
@@ -39,8 +42,8 @@ export async function createUserProfile(
     await setDoc(profileRef, profileData);
     return profileRef;
   } catch (error) {
-    console.error("Firestore error in createUserProfile:", error);
-    throw new Error("Impossibile creare il profilo in Firestore.");
+    console.error('Firestore error in createUserProfile:', error);
+    throw new Error('Impossibile creare il profilo in Firestore.');
   }
 }
 
@@ -50,7 +53,7 @@ export async function getUserProfile(userId: string) {
   if (!profileSnap.exists()) {
     return null;
   }
-  return profileSnap.data();
+  return profileSnap.data() as UserProfile;
 }
 
 export async function updateUserProfile(
@@ -65,8 +68,8 @@ export async function updateUserProfile(
     });
     return profileRef;
   } catch (error) {
-    console.error("Firestore error in updateUserProfile:", error);
-    throw new Error("Impossibile aggiornare il profilo in Firestore.");
+    console.error('Firestore error in updateUserProfile:', error);
+    throw new Error('Impossibile aggiornare il profilo in Firestore.');
   }
 }
 

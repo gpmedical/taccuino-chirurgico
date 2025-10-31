@@ -2,8 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
-import { auth, db, getUserProfile, createUserProfile } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, getUserProfile, createUserProfile, updateUserProfile } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import type { UserProfile } from "@/types/user";
 
@@ -21,28 +20,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  // Helper function to save user data to Firestore with error handling
-  const saveUserToFirestore = async (user: User) => {
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (!docSnap.exists()) {
-        await setDoc(userRef, {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName,
-          photoURL: user.photoURL,
-          provider: user.providerData[0]?.providerId || "email",
-          createdAt: new Date().toISOString(),
-        });
-      }
-    } catch (error) {
-      console.error("Failed to save user data to Firestore:", error);
-      // Don't throw error - this is not critical for authentication
-    }
-  };
 
   const [mounted, setMounted] = useState(false);
 
@@ -74,26 +51,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!isMounted) return;
 
       if (user) {
-        // Try to save user data to Firestore (non-blocking)
-        saveUserToFirestore(user).catch(error => {
-          console.error("Full error object when saving user data:", error);
-        });
         setUser(user);
         // Fetch or create user profile
         try {
+          const displayName = user.displayName?.trim() || "";
+          const [firstName, ...rest] = displayName.split(" ");
+          const lastName = rest.join(" ");
+          const email = user.email ?? "";
+          const provider = user.providerData[0]?.providerId || "email";
+          const baseProfile = {
+            firstName: firstName || "",
+            lastName: lastName || "",
+            email,
+            provider,
+          };
+
           let prof = await getUserProfile(user.uid);
 
           if (!prof) {
-            const displayName = user.displayName?.trim() || "";
-            const [firstName, ...rest] = displayName.split(" ");
-            const lastName = rest.join(" ");
-
-            await createUserProfile(user.uid, {
-              firstName: firstName || "",
-              lastName: lastName || "",
-            });
-
+            await createUserProfile(user.uid, baseProfile);
             prof = await getUserProfile(user.uid);
+          } else {
+            const updates: Partial<Omit<UserProfile, "userId" | "createdAt" | "updatedAt">> = {};
+            if (prof.email !== email && email) {
+              updates.email = email;
+            }
+            if (prof.provider !== provider) {
+              updates.provider = provider;
+            }
+            if (!prof.firstName && baseProfile.firstName) {
+              updates.firstName = baseProfile.firstName;
+            }
+            if (!prof.lastName && baseProfile.lastName) {
+              updates.lastName = baseProfile.lastName;
+            }
+            if (Object.keys(updates).length > 0) {
+              await updateUserProfile(user.uid, updates);
+              prof = await getUserProfile(user.uid);
+            }
           }
 
           setProfile((prof ?? null) as UserProfile | null);

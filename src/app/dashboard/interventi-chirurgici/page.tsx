@@ -138,7 +138,7 @@ export default function InterventiChirurgiciPage() {
     >
       <div className="space-y-6">
         {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
             {Array.from({ length: 3 }).map((_, index) => (
               <ProcedureSkeleton key={index} />
             ))}
@@ -180,24 +180,24 @@ export default function InterventiChirurgiciPage() {
         ) : null}
 
         {!loading && !error && sortedProcedures.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
             {sortedProcedures.map((procedure) => (
               <Card
                 key={procedure.id}
                 className="group border-blue-200/70 bg-white/80 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/50 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/50"
               >
                 <Link href={`/dashboard/interventi-chirurgici/${procedure.id}`} className="flex h-full flex-col">
-                  <CardHeader className="space-y-1">
+                  <CardHeader className="space-y-1 pb-0">
                     <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
                       {procedure.procedura}
                       <Layers3 className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
                     </CardTitle>
-                    <CardDescription>
-                      Tocca per visualizzare tecniche, accorgimenti e checklist operative personalizzate.
+                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
+                      Visualizza tecniche, accorgimenti e appunti operativi.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="mt-auto">
-                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                  <CardContent className="pt-5">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                       <CalendarClock className="h-4 w-4 text-blue-500" />
                       Aggiornato il {formatTimestamp(procedure.updatedAt ?? procedure.createdAt)}
                     </div>

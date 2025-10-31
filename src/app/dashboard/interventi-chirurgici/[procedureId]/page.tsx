@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -17,10 +17,10 @@ import {
 import type { Timestamp } from "firebase/firestore"
 import {
   ArrowLeft,
-  ClipboardList,
   Edit2,
   Layers3,
   Plus,
+  Slice,
   Sparkles,
   Trash2,
 } from "lucide-react"
@@ -74,7 +74,7 @@ const techniqueSchema = z.object({
   accesso: longTextSchema,
   stepChirurgici: longTextSchema,
   tipsAndTricks: longTextSchema,
-  attenzioni: longTextSchema,
+  attenzione: longTextSchema,
   postOperatorio: longTextSchema,
   altro: longTextSchema,
 })
@@ -88,7 +88,7 @@ const techniqueDefaultValues: TechniqueFormValues = {
   accesso: "",
   stepChirurgici: "",
   tipsAndTricks: "",
-  attenzioni: "",
+  attenzione: "",
   postOperatorio: "",
   altro: "",
 }
@@ -102,7 +102,7 @@ const mapTechniqueToFormValues = (
   accesso: technique.accesso ?? "",
   stepChirurgici: technique.stepChirurgici ?? "",
   tipsAndTricks: technique.tipsAndTricks ?? "",
-  attenzioni: technique.attenzioni ?? "",
+  attenzione: technique.attenzione ?? "",
   postOperatorio: technique.postOperatorio ?? "",
   altro: technique.altro ?? "",
 })
@@ -156,13 +156,10 @@ const InfoBlock = ({ label, value }: { label: string; value?: string }) => (
   </div>
 )
 
-interface PageProps {
-  params: { procedureId: string }
-}
-
-export default function ProcedureDetailPage({ params }: PageProps) {
+export default function ProcedureDetailPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
+  const { procedureId } = useParams<{ procedureId: string }>()
   const [procedure, setProcedure] = useState<SurgicalProcedure | null>(null)
   const [techniques, setTechniques] = useState<SurgicalTechnique[]>([])
   const [procedureError, setProcedureError] = useState<string | null>(null)
@@ -184,6 +181,13 @@ export default function ProcedureDetailPage({ params }: PageProps) {
   useEffect(() => {
     if (authLoading) return
 
+    if (!procedureId) {
+      setProcedure(null)
+      setProcedureError("Impossibile identificare l'intervento richiesto.")
+      setProcedureLoading(false)
+      return
+    }
+
     if (!user) {
       setProcedure(null)
       setProcedureError("Devi essere autenticato per visualizzare questa procedura.")
@@ -192,7 +196,7 @@ export default function ProcedureDetailPage({ params }: PageProps) {
     }
 
     setProcedureLoading(true)
-    const procedureRef = doc(db, "surgicalProcedures", params.procedureId)
+    const procedureRef = doc(db, "surgicalProcedures", procedureId)
 
     const unsubscribe = onSnapshot(
       procedureRef,
@@ -221,7 +225,7 @@ export default function ProcedureDetailPage({ params }: PageProps) {
     )
 
     return () => unsubscribe()
-  }, [authLoading, params.procedureId, user])
+  }, [authLoading, procedureId, user])
 
   useEffect(() => {
     if (!procedure || !user || procedure.userId !== user.uid) {
@@ -326,7 +330,18 @@ export default function ProcedureDetailPage({ params }: PageProps) {
 
   return (
     <DashboardSection
-      title={procedure?.procedura ?? "Intervento chirurgico"}
+      title={
+        procedure ? (
+          <span className="flex items-baseline gap-3">
+            {procedure.procedura}
+            <Badge className="bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1.5 text-sm text-white shadow-sm shadow-blue-500/40">
+              {techniquesCount} {techniquesCount === 1 ? "tecnica" : "tecniche"}
+            </Badge>
+          </span>
+        ) : (
+          "Intervento chirurgico"
+        )
+      }
       description={
         procedure
           ? "Consulta tutte le tecniche salvate per questa procedura, modifica le note esistenti o aggiungi nuove varianti operative."
@@ -341,7 +356,7 @@ export default function ProcedureDetailPage({ params }: PageProps) {
           >
             <Link href="/dashboard/interventi-chirurgici" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Indice interventi
+              Lista interventi
             </Link>
           </Button>
           <Button
@@ -382,25 +397,6 @@ export default function ProcedureDetailPage({ params }: PageProps) {
               >
                 Torna all'elenco
               </Button>
-            </CardContent>
-          </Card>
-        ) : null}
-
-        {!procedureLoading && !procedureError && procedure ? (
-          <Card className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/60 dark:border-blue-900/60 dark:bg-slate-950/80 dark:shadow-blue-950/40">
-            <CardHeader className="space-y-2">
-              <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                <Layers3 className="h-5 w-5" />
-                {procedure.procedura}
-              </CardTitle>
-              <CardDescription>
-                Ultimo aggiornamento: {formatDateTime(procedure.updatedAt ?? procedure.createdAt)}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3">
-              <Badge className="bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/40">
-                {techniquesCount} {techniquesCount === 1 ? "tecnica" : "tecniche"}
-              </Badge>
             </CardContent>
           </Card>
         ) : null}
@@ -471,11 +467,11 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                            <ClipboardList className="h-5 w-5" />
+                            <Layers3 className="h-5 w-5" />
                             {technique.tecnica}
                           </CardTitle>
                           <CardDescription>
-                            Aggiornata: {formatDateTime(technique.updatedAt ?? technique.createdAt)}
+                            Aggiornato: {formatDateTime(technique.updatedAt ?? technique.createdAt)}
                           </CardDescription>
                         </div>
                         <div className="flex items-center gap-2 self-end sm:self-start">
@@ -511,7 +507,7 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         <InfoBlock label="Tips and Tricks" value={technique.tipsAndTricks} />
-                        <InfoBlock label="Fare attenzione a" value={technique.attenzioni} />
+                        <InfoBlock label="Fare attenzione a" value={technique.attenzione} />
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
                         <InfoBlock label="Post-Operatorio" value={technique.postOperatorio} />
@@ -532,7 +528,7 @@ export default function ProcedureDetailPage({ params }: PageProps) {
             <DialogTitle>{dialogMode === "create" ? "Nuova tecnica" : "Modifica tecnica"}</DialogTitle>
             <DialogDescription>
               {dialogMode === "create"
-                ? "Aggiungi una nuova variante tecnica a questa procedura. Il campo Procedura non è modificabile."
+                ? "Aggiungi una nuova variante a questa procedura."
                 : "Aggiorna i dettagli della tecnica selezionata."}
             </DialogDescription>
           </DialogHeader>
@@ -557,7 +553,7 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Es. Approccio open"
+                        placeholder="Es. Open"
                         className="border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                       />
                     </FormControl>
@@ -565,18 +561,18 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                   </FormItem>
                 )}
               />
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2 md:items-start">
                 <FormField
                   control={form.control}
                   name="preOperatorio"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Pre-Operatorio</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Checklist pre-operatoria, materiali, preparazione"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -587,32 +583,30 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                   control={form.control}
                   name="posizione"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Posizione</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Posizionamento del paziente e dell'equipe"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="accesso"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Accesso</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Descrivi accessi, incisioni, porte"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -623,32 +617,30 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                   control={form.control}
                   name="stepChirurgici"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Step Chirurgici</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Sequenza degli step principali"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="tipsAndTricks"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Tips and Tricks</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Accorgimenti personali, strumenti, suggerimenti"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -657,34 +649,32 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="attenzioni"
+                  name="attenzione"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Fare attenzione a</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Punti critici e strutture da preservare"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="postOperatorio"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Post-Operatorio</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Monitoraggi, terapia, follow-up"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -695,13 +685,13 @@ export default function ProcedureDetailPage({ params }: PageProps) {
                   control={form.control}
                   name="altro"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex h-full flex-col gap-2">
                       <FormLabel>Altro</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
                           placeholder="Note aggiuntive, riferimenti, materiali"
-                          className="min-h-24 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+                          className="min-h-24 flex-1 border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </FormControl>
                       <FormMessage />

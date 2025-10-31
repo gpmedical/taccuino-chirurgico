@@ -17,7 +17,7 @@ export interface SurgicalTechnique {
   accesso: string
   stepChirurgici: string
   tipsAndTricks: string
-  attenzioni: string
+  attenzione: string
   postOperatorio: string
   altro: string
   createdAt?: Timestamp | null

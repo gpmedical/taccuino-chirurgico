@@ -20,7 +20,7 @@ export interface ProcedurePayload {
   accesso?: string
   stepChirurgici?: string
   tipsAndTricks?: string
-  attenzioni?: string
+  attenzione?: string
   postOperatorio?: string
   altro?: string
 }
@@ -48,7 +48,7 @@ export async function createProcedureWithTechnique(
     accesso: sanitizeField(data.accesso),
     stepChirurgici: sanitizeField(data.stepChirurgici),
     tipsAndTricks: sanitizeField(data.tipsAndTricks),
-    attenzioni: sanitizeField(data.attenzioni),
+    attenzione: sanitizeField(data.attenzione),
     postOperatorio: sanitizeField(data.postOperatorio),
     altro: sanitizeField(data.altro),
     createdAt: timestamp,
@@ -72,7 +72,7 @@ export async function createTechnique(
     accesso: sanitizeField(data.accesso),
     stepChirurgici: sanitizeField(data.stepChirurgici),
     tipsAndTricks: sanitizeField(data.tipsAndTricks),
-    attenzioni: sanitizeField(data.attenzioni),
+    attenzione: sanitizeField(data.attenzione),
     postOperatorio: sanitizeField(data.postOperatorio),
     altro: sanitizeField(data.altro),
     createdAt: timestamp,
@@ -103,7 +103,7 @@ export async function updateTechnique(
     accesso: sanitizeField(data.accesso),
     stepChirurgici: sanitizeField(data.stepChirurgici),
     tipsAndTricks: sanitizeField(data.tipsAndTricks),
-    attenzioni: sanitizeField(data.attenzioni),
+    attenzione: sanitizeField(data.attenzione),
     postOperatorio: sanitizeField(data.postOperatorio),
     altro: sanitizeField(data.altro),
     updatedAt: timestamp,

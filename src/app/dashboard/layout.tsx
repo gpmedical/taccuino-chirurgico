@@ -88,22 +88,19 @@ export default function DashboardLayout({
       <SidebarProvider>
         <div className="relative flex min-h-svh w-full bg-linear-to-br from-sky-50 via-white to-blue-100 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 dark:text-slate-100">
           <Sidebar className="border-border/60 bg-linear-to-b from-white/90 via-blue-50/80 to-sky-100/70 backdrop-blur supports-backdrop-filter:bg-white/70 dark:from-slate-950/80 dark:via-slate-900/70 dark:to-blue-950/60">
-            <SidebarHeader className="px-4 pb-3 pt-8">
+            <SidebarHeader className="flex items-center justify-center px-4 pb-3 pt-8">
               <Link
                 href="/dashboard"
-                className="flex items-center gap-2 text-lg font-semibold text-blue-700 transition hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
+                className="inline-flex items-center justify-center text-lg font-semibold text-blue-700 transition hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
               >
                 <div>
                   <Image
                     src={"/Logo.png"}
-                    height={50}
-                    width={50}
+                    height={75}
+                    width={200}
                     alt="Logo"
                   />
                 </div>
-                <span className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-sky-400 dark:via-blue-500 dark:to-indigo-400">
-                  Taccuino Chirurgico
-                </span>
               </Link>
             </SidebarHeader>
             <SidebarContent>
@@ -137,7 +134,7 @@ export default function DashboardLayout({
             <SidebarFooter className="mt-auto px-4 pb-6">
               <Button
                 variant="destructive"
-                className="mt-3 w-full cursor-pointer"
+                className="mt-3 w-full"
                 onClick={signOut}
               >
                 Esci

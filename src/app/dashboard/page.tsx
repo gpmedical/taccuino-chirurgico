@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import {
   ArrowRight,
   Calendar,
@@ -11,10 +12,17 @@ import {
   Stethoscope,
   UsersRound,
 } from "lucide-react"
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
+import { db } from "@/lib/firebase"
 
 const quickActions = [
   {
@@ -52,6 +60,32 @@ const upcoming = [
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const [procedureCount, setProcedureCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!user) {
+      setProcedureCount(0)
+      return
+    }
+
+    const proceduresQuery = query(
+      collection(db, "surgicalProcedures"),
+      where("userId", "==", user.uid)
+    )
+
+    const unsubscribe = onSnapshot(
+      proceduresQuery,
+      (snapshot) => {
+        setProcedureCount(snapshot.size)
+      },
+      (error) => {
+        console.error("Errore nel conteggio degli interventi:", error)
+        setProcedureCount(null)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [user])
 
   return (
     <div className="space-y-8">
@@ -87,7 +121,9 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Interventi registrati</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">24</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  {procedureCount ?? "—"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
