@@ -94,7 +94,7 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Benvenuto in Taccuino Chirurgico</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Benvenuto</h1>
           <p className="text-base text-slate-600 dark:text-slate-300">Registrati per iniziare</p>
         </div>
         <Form {...form}>
@@ -108,7 +108,6 @@ export function SignUpForm({
                     <FormLabel>Nome</FormLabel>
                     <FormControl>
                       <Input
-                        id="first-name"
                         placeholder="Mario"
                         disabled={loading}
                         autoComplete="given-name"
@@ -129,7 +128,6 @@ export function SignUpForm({
                     <FormLabel>Cognome</FormLabel>
                     <FormControl>
                       <Input
-                        id="last-name"
                         placeholder="Rossi"
                         disabled={loading}
                         autoComplete="family-name"
@@ -151,7 +149,6 @@ export function SignUpForm({
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      id="email"
                       type="email"
                       placeholder="nome.cognome@email.com"
                       disabled={loading}
@@ -173,7 +170,6 @@ export function SignUpForm({
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                      id="password"
                       type="password"
                       placeholder="********"
                       disabled={loading}
@@ -195,7 +191,6 @@ export function SignUpForm({
                   <FormLabel>Conferma password</FormLabel>
                   <FormControl>
                     <Input
-                      id="confirm-password"
                       type="password"
                       placeholder="********"
                       disabled={loading}

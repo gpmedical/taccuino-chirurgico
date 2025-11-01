@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { FirebaseError } from "firebase/app"
 import {
   Form,
   FormField,
@@ -48,9 +49,18 @@ export function LoginForm({
       await signInWithEmailAndPassword(auth, values.email, values.password);
       // The AuthProvider will handle the redirect when it detects the user is authenticated
     } catch (error: unknown) {
-      console.error('Login error:', error);
-      const message = error instanceof Error ? error.message : 'Accesso non riuscito. Riprova.';
-      setError(message);
+      console.error("Login error:", error)
+      let message = "Accesso non riuscito. Riprova."
+      if (error instanceof FirebaseError) {
+        if (error.code === "auth/invalid-credential") {
+          message = "Credenziali non valide."
+        } else if (error.message) {
+          message = error.message
+        }
+      } else if (error instanceof Error) {
+        message = error.message
+      }
+      setError(message)
     } finally {
       setLoading(false);
     }
@@ -73,7 +83,6 @@ export function LoginForm({
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      id="email"
                       type="email"
                       placeholder="nome.cognome@email.com"
                       disabled={loading}
@@ -103,7 +112,6 @@ export function LoginForm({
                   </div>
                   <FormControl>
                     <Input
-                      id="password"
                       type="password"
                       placeholder="********"
                       disabled={loading}
