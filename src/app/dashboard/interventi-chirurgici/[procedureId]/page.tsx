@@ -17,10 +17,9 @@ import {
 import type { Timestamp } from "firebase/firestore"
 import {
   ArrowLeft,
-  Edit2,
+  SquarePen,
   Layers3,
   Plus,
-  Slice,
   Sparkles,
   Trash2,
 } from "lucide-react"
@@ -50,7 +49,6 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/contexts/auth-context"
 import { db } from "@/lib/firebase"
@@ -172,6 +170,9 @@ export default function ProcedureDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [techniqueToDelete, setTechniqueToDelete] = useState<SurgicalTechnique | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [techniquePage, setTechniquePage] = useState(1)
+
+  const TECHNIQUES_PER_PAGE = 4
 
   const form = useForm<TechniqueFormValues>({
     resolver: zodResolver(techniqueSchema),
@@ -240,7 +241,7 @@ export default function ProcedureDetailPage() {
       doc(db, "surgicalProcedures", procedure.id),
       "techniques"
     )
-    const techniquesQuery = query(techniquesRef, orderBy("createdAt", "desc"))
+    const techniquesQuery = query(techniquesRef, orderBy("tecnica", "asc"))
 
     const unsubscribe = onSnapshot(
       techniquesQuery,
@@ -326,18 +327,39 @@ export default function ProcedureDetailPage() {
     }
   }
 
-  const techniquesCount = useMemo(() => techniques.length, [techniques])
+  const orderedTechniques = useMemo(() => {
+    return [...techniques].sort((a, b) => {
+      const aName = (a.tecnica ?? "").toLowerCase()
+      const bName = (b.tecnica ?? "").toLowerCase()
+      return aName.localeCompare(bName)
+    })
+  }, [techniques])
+
+  const totalTechniquePages = useMemo(() => {
+    return Math.max(1, Math.ceil(orderedTechniques.length / TECHNIQUES_PER_PAGE))
+  }, [orderedTechniques.length, TECHNIQUES_PER_PAGE])
+
+  useEffect(() => {
+    setTechniquePage(1)
+  }, [orderedTechniques.length])
+
+  useEffect(() => {
+    if (techniquePage > totalTechniquePages) {
+      setTechniquePage(totalTechniquePages)
+    }
+  }, [techniquePage, totalTechniquePages])
+
+  const visibleTechniques = useMemo(() => {
+    const start = (techniquePage - 1) * TECHNIQUES_PER_PAGE
+    const end = start + TECHNIQUES_PER_PAGE
+    return orderedTechniques.slice(start, end)
+  }, [orderedTechniques, techniquePage])
 
   return (
     <DashboardSection
       title={
         procedure ? (
-          <span className="flex items-baseline gap-3">
-            {procedure.procedura}
-            <Badge className="bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 px-3 py-1.5 text-sm text-white shadow-sm shadow-blue-500/40">
-              {techniquesCount} {techniquesCount === 1 ? "tecnica" : "tecniche"}
-            </Badge>
-          </span>
+          <span className="text-balance leading-none tracking-tight">{procedure.procedura}</span>
         ) : (
           "Intervento chirurgico"
         )
@@ -405,7 +427,7 @@ export default function ProcedureDetailPage() {
           <div className="space-y-4">
             {techniquesLoading ? (
               <div className="grid gap-4 lg:grid-cols-2">
-                {Array.from({ length: 2 }).map((_, index) => (
+                {Array.from({ length: TECHNIQUES_PER_PAGE }).map((_, index) => (
                   <Card
                     key={index}
                     className="border-blue-200/70 bg-white/80 shadow-sm shadow-blue-100/60 dark:border-blue-900/60 dark:bg-slate-950/80 dark:shadow-blue-950/40"
@@ -433,7 +455,7 @@ export default function ProcedureDetailPage() {
               </Card>
             ) : null}
 
-            {!techniquesLoading && !techniquesError && techniques.length === 0 ? (
+            {!techniquesLoading && !techniquesError && orderedTechniques.length === 0 ? (
               <Card className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/60 dark:border-blue-900/60 dark:bg-slate-950/80 dark:shadow-blue-950/40">
                 <CardHeader className="space-y-3 text-center">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/40">
@@ -456,66 +478,95 @@ export default function ProcedureDetailPage() {
               </Card>
             ) : null}
 
-            {!techniquesLoading && !techniquesError && techniques.length > 0 ? (
-              <div className="grid gap-4 lg:grid-cols-2">
-                {techniques.map((technique) => (
-                  <Card
-                    key={technique.id}
-                    className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/60 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/60 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/60"
-                  >
-                    <CardHeader className="space-y-3">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                            <Layers3 className="h-5 w-5" />
-                            {technique.tecnica}
-                          </CardTitle>
-                          <CardDescription>
-                            Aggiornato: {formatDateTime(technique.updatedAt ?? technique.createdAt)}
-                          </CardDescription>
-                        </div>
-                        <div className="flex items-center gap-2 self-end sm:self-start">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-blue-600 hover:bg-blue-50 hover:text-blue-800 dark:text-blue-300 dark:hover:bg-slate-900"
-                            onClick={() => handleEditClick(technique)}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                            <span className="sr-only">Modifica tecnica</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-rose-600 hover:bg-rose-50 hover:text-rose-800 dark:text-rose-300 dark:hover:bg-slate-900"
-                            onClick={() => setTechniqueToDelete(technique)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Elimina tecnica</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <InfoBlock label="Pre-Operatorio" value={technique.preOperatorio} />
-                        <InfoBlock label="Posizione" value={technique.posizione} />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <InfoBlock label="Accesso" value={technique.accesso} />
-                        <InfoBlock label="Step Chirurgici" value={technique.stepChirurgici} />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <InfoBlock label="Tips and Tricks" value={technique.tipsAndTricks} />
-                        <InfoBlock label="Fare attenzione a" value={technique.attenzione} />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <InfoBlock label="Post-Operatorio" value={technique.postOperatorio} />
-                        <InfoBlock label="Altro" value={technique.altro} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+            {!techniquesLoading && !techniquesError && orderedTechniques.length > 0 ? (
+              <div className="space-y-4">
+                <div className="md:max-h-[65vh] md:overflow-y-auto md:pr-2">
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    {visibleTechniques.map((technique) => (
+                      <Card
+                        key={technique.id}
+                        className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/60 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/60 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/60"
+                      >
+                        <CardHeader className="space-y-3">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                                <Layers3 className="h-5 w-5" />
+                                {technique.tecnica}
+                              </CardTitle>
+                              <CardDescription>
+                                Aggiornato: {formatDateTime(technique.updatedAt ?? technique.createdAt)}
+                              </CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2 self-end sm:self-start">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-blue-600 hover:bg-blue-50 hover:text-blue-800 dark:text-blue-300 dark:hover:bg-slate-900"
+                                onClick={() => handleEditClick(technique)}
+                              >
+                                <SquarePen className="h-4 w-4" />
+                                <span className="sr-only">Modifica tecnica</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-rose-600 hover:bg-rose-50 hover:text-rose-800 dark:text-rose-300 dark:hover:bg-slate-900"
+                                onClick={() => setTechniqueToDelete(technique)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Elimina tecnica</span>
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <InfoBlock label="Pre-Operatorio" value={technique.preOperatorio} />
+                            <InfoBlock label="Posizione" value={technique.posizione} />
+                          </div>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <InfoBlock label="Accesso" value={technique.accesso} />
+                            <InfoBlock label="Step Chirurgici" value={technique.stepChirurgici} />
+                          </div>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <InfoBlock label="Tips and Tricks" value={technique.tipsAndTricks} />
+                            <InfoBlock label="Fare attenzione a" value={technique.attenzione} />
+                          </div>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <InfoBlock label="Post-Operatorio" value={technique.postOperatorio} />
+                            <InfoBlock label="Altro" value={technique.altro} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+                {totalTechniquePages > 1 ? (
+                  <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Pagina {techniquePage} di {totalTechniquePages}</p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
+                        onClick={() => setTechniquePage((page) => Math.max(1, page - 1))}
+                        disabled={techniquePage === 1}
+                      >
+                        Precedente
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
+                        onClick={() => setTechniquePage((page) => Math.min(totalTechniquePages, page + 1))}
+                        disabled={techniquePage === totalTechniquePages}
+                      >
+                        Successiva
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

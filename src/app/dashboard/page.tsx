@@ -28,7 +28,7 @@ const quickActions = [
   {
     title: "Registra intervento",
     description: "Annota dettagli tecnici, steps chirurgici e \"tips and tricks\".",
-    href: "/dashboard/interventi-chirurgici",
+    href: "/dashboard/interventi-chirurgici/nuovo",
     icon: Slice,
   },
   {
@@ -104,7 +104,7 @@ export default function Dashboard() {
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700">
-                <Link href="/dashboard/interventi-chirurgici" className="flex items-center gap-2">
+                <Link href="/dashboard/interventi-chirurgici/nuovo" className="flex items-center gap-2">
                   Nuovo intervento
                   <ArrowRight className="h-4 w-4" />
                 </Link>

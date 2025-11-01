@@ -77,6 +77,9 @@ export default function InterventiChirurgiciPage() {
   const [procedures, setProcedures] = useState<SurgicalProcedure[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const PROCEDURES_PER_PAGE = 6
 
   useEffect(() => {
     if (!user) {
@@ -114,11 +117,31 @@ export default function InterventiChirurgiciPage() {
 
   const sortedProcedures = useMemo(() => {
     return [...procedures].sort((a, b) => {
-      const aTime = a.updatedAt?.toMillis?.() ?? a.createdAt?.toMillis?.() ?? 0
-      const bTime = b.updatedAt?.toMillis?.() ?? b.createdAt?.toMillis?.() ?? 0
-      return bTime - aTime
+      const aName = (a.procedura ?? "").toLowerCase()
+      const bName = (b.procedura ?? "").toLowerCase()
+      return aName.localeCompare(bName)
     })
   }, [procedures])
+
+  const totalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(sortedProcedures.length / PROCEDURES_PER_PAGE))
+  }, [sortedProcedures.length, PROCEDURES_PER_PAGE])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [sortedProcedures.length])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
+  const paginatedProcedures = useMemo(() => {
+    const start = (currentPage - 1) * PROCEDURES_PER_PAGE
+    const end = start + PROCEDURES_PER_PAGE
+    return sortedProcedures.slice(start, end)
+  }, [currentPage, sortedProcedures])
 
   return (
     <DashboardSection
@@ -139,7 +162,7 @@ export default function InterventiChirurgiciPage() {
       <div className="space-y-6">
         {loading ? (
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-            {Array.from({ length: 3 }).map((_, index) => (
+            {Array.from({ length: PROCEDURES_PER_PAGE }).map((_, index) => (
               <ProcedureSkeleton key={index} />
             ))}
           </div>
@@ -180,31 +203,62 @@ export default function InterventiChirurgiciPage() {
         ) : null}
 
         {!loading && !error && sortedProcedures.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-            {sortedProcedures.map((procedure) => (
-              <Card
-                key={procedure.id}
-                className="group border-blue-200/70 bg-white/80 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/50 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/50"
-              >
-                <Link href={`/dashboard/interventi-chirurgici/${procedure.id}`} className="flex h-full flex-col">
-                  <CardHeader className="space-y-1 pb-0">
-                    <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
-                      {procedure.procedura}
-                      <Layers3 className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
-                    </CardTitle>
-                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
-                      Visualizza tecniche, accorgimenti e appunti operativi.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-5">
-                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                      <CalendarClock className="h-4 w-4 text-blue-500" />
-                      Aggiornato il {formatTimestamp(procedure.updatedAt ?? procedure.createdAt)}
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
-            ))}
+          <div className="space-y-4">
+            <div className="md:max-h-[65vh] md:overflow-y-auto md:pr-2">
+              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+                {paginatedProcedures.map((procedure) => (
+                  <Card
+                    key={procedure.id}
+                    className="group border-blue-200/70 bg-white/80 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/50 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/50"
+                  >
+                    <Link href={`/dashboard/interventi-chirurgici/${procedure.id}`} className="flex h-full flex-col">
+                      <CardHeader className="space-y-1 pb-0">
+                        <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
+                          {procedure.procedura}
+                          <Layers3 className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
+                        </CardTitle>
+                        <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
+                          Visualizza tecniche, accorgimenti e appunti operativi.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-5">
+                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                          <CalendarClock className="h-4 w-4 text-blue-500" />
+                          Aggiornato il {formatTimestamp(procedure.updatedAt ?? procedure.createdAt)}
+                        </div>
+                      </CardContent>
+                    </Link>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            {totalPages > 1 ? (
+              <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {sortedProcedures.length} {sortedProcedures.length === 1 ? "procedura" : "procedure"} totali - Pagina {currentPage} di {totalPages}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Precedente
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Successiva
+                  </Button>
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>

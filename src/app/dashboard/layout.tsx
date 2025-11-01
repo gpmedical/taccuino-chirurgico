@@ -96,9 +96,10 @@ export default function DashboardLayout({
                 <div>
                   <Image
                     src={"/Logo.png"}
-                    height={75}
-                    width={200}
-                    alt="Logo"
+                    width={500}
+                    height={500}
+                    alt="Taccuino Chirurgico"
+                    loading="eager"
                   />
                 </div>
               </Link>
