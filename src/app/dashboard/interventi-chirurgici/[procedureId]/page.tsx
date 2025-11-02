@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 
 import { DashboardSection } from "@/components/dashboard/section-shell"
+import { PaginationControls } from "@/components/dashboard/pagination-controls"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -45,18 +46,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
 import { db } from "@/lib/firebase"
 import {
+  deleteProcedure,
+  updateProcedure,
   createTechnique,
   deleteTechnique,
   updateTechnique,
 } from "@/lib/surgical-procedures"
+import { usePagination } from "@/hooks/use-pagination"
 import type { SurgicalProcedure, SurgicalTechnique } from "@/types/interventi"
 
 const longTextSchema = z.string().max(4000, "Il testo inserito è troppo lungo").trim()
@@ -170,7 +176,10 @@ export default function ProcedureDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [techniqueToDelete, setTechniqueToDelete] = useState<SurgicalTechnique | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [techniquePage, setTechniquePage] = useState(1)
+  const [isEditTitleOpen, setIsEditTitleOpen] = useState(false)
+  const [newTitle, setNewTitle] = useState("")
+  const [isUpdatingTitle, setIsUpdatingTitle] = useState(false)
+  const [isDeletingProcedure, setIsDeletingProcedure] = useState(false)
 
   const TECHNIQUES_PER_PAGE = 4
 
@@ -291,6 +300,50 @@ export default function ProcedureDetailPage() {
     setDialogOpen(true)
   }, [])
 
+  const handleOpenTitleDialog = () => {
+    if (!procedure) return
+    setNewTitle(procedure.procedura ?? "")
+    setIsEditTitleOpen(true)
+  }
+
+  const handleUpdateProcedureTitle = async () => {
+    if (!procedureId) return
+
+    const trimmedTitle = newTitle.trim()
+    if (trimmedTitle.length < 3) {
+      toast.error("Inserisci almeno 3 caratteri per il nome dell'intervento")
+      return
+    }
+
+    setIsUpdatingTitle(true)
+    try {
+      await updateProcedure(procedureId, { procedura: trimmedTitle })
+      toast.success("Nome dell'intervento aggiornato con successo")
+      setIsEditTitleOpen(false)
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dell'intervento:", error)
+      toast.error("Non è stato possibile aggiornare il nome dell'intervento. Riprova più tardi.")
+    } finally {
+      setIsUpdatingTitle(false)
+    }
+  }
+
+  const handleDeleteProcedure = async () => {
+    if (!procedureId) return
+
+    setIsDeletingProcedure(true)
+    try {
+      await deleteProcedure(procedureId)
+      toast.success("Intervento eliminato con successo")
+      router.push("/dashboard/interventi-chirurgici")
+    } catch (error) {
+      console.error("Errore durante l'eliminazione dell'intervento:", error)
+      toast.error("Non è stato possibile eliminare l'intervento. Riprova più tardi.")
+    } finally {
+      setIsDeletingProcedure(false)
+    }
+  }
+
   const handleSubmitTechnique = async (values: TechniqueFormValues) => {
     if (!procedure) return
 
@@ -335,25 +388,15 @@ export default function ProcedureDetailPage() {
     })
   }, [techniques])
 
-  const totalTechniquePages = useMemo(() => {
-    return Math.max(1, Math.ceil(orderedTechniques.length / TECHNIQUES_PER_PAGE))
-  }, [orderedTechniques.length, TECHNIQUES_PER_PAGE])
-
-  useEffect(() => {
-    setTechniquePage(1)
-  }, [orderedTechniques.length])
-
-  useEffect(() => {
-    if (techniquePage > totalTechniquePages) {
-      setTechniquePage(totalTechniquePages)
-    }
-  }, [techniquePage, totalTechniquePages])
-
-  const visibleTechniques = useMemo(() => {
-    const start = (techniquePage - 1) * TECHNIQUES_PER_PAGE
-    const end = start + TECHNIQUES_PER_PAGE
-    return orderedTechniques.slice(start, end)
-  }, [orderedTechniques, techniquePage])
+  const {
+    currentPage: techniquePage,
+    totalPages: totalTechniquePages,
+    pageItems: visibleTechniques,
+    goToPrevious: goToPreviousTechnique,
+    goToNext: goToNextTechnique,
+    canGoPrevious: canGoPreviousTechnique,
+    canGoNext: canGoNextTechnique,
+  } = usePagination(orderedTechniques, TECHNIQUES_PER_PAGE)
 
   return (
     <DashboardSection
@@ -380,6 +423,15 @@ export default function ProcedureDetailPage() {
               <ArrowLeft className="h-4 w-4" />
               Lista interventi
             </Link>
+          </Button>
+          <Button
+            onClick={handleOpenTitleDialog}
+            disabled={!procedure || !!procedureError}
+            variant="outline"
+            className="border-amber-200/70 text-amber-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-900 dark:border-amber-900/60 dark:text-amber-200 dark:hover:border-amber-700 dark:hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-80"
+          >
+            <SquarePen className="mr-2 h-4 w-4" />
+            Modifica nome
           </Button>
           <Button
             onClick={handleCreateClick}
@@ -542,36 +594,103 @@ export default function ProcedureDetailPage() {
                     ))}
                   </div>
                 </div>
-                {totalTechniquePages > 1 ? (
-                  <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Pagina {techniquePage} di {totalTechniquePages}</p>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
-                        onClick={() => setTechniquePage((page) => Math.max(1, page - 1))}
-                        disabled={techniquePage === 1}
-                      >
-                        Precedente
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
-                        onClick={() => setTechniquePage((page) => Math.min(totalTechniquePages, page + 1))}
-                        disabled={techniquePage === totalTechniquePages}
-                      >
-                        Successiva
-                      </Button>
-                    </div>
-                  </div>
-                ) : null}
+                <PaginationControls
+                  currentPage={techniquePage}
+                  totalPages={totalTechniquePages}
+                  onPrevious={goToPreviousTechnique}
+                  onNext={goToNextTechnique}
+                  disablePrevious={!canGoPreviousTechnique}
+                  disableNext={!canGoNextTechnique}
+                  summary={`Pagina ${techniquePage} di ${totalTechniquePages}`}
+                />
               </div>
             ) : null}
           </div>
         ) : null}
       </div>
+
+      {procedure ? (
+        <div className="flex justify-end">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                disabled={isDeletingProcedure}
+                className="bg-linear-to-r from-rose-500 via-rose-600 to-rose-700 text-white shadow-lg shadow-rose-500/40 hover:from-rose-600 hover:via-rose-700 hover:to-rose-800 disabled:cursor-not-allowed disabled:opacity-80"
+              >
+                {isDeletingProcedure ? "Eliminazione in corso..." : "Elimina intervento"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="border-rose-200/70 bg-white/95 shadow-xl shadow-rose-200/60 backdrop-blur dark:border-rose-900/60 dark:bg-rose-950/95 dark:shadow-rose-950/60">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Elimina intervento</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Questa azione eliminerà definitivamente l&apos;intervento e tutte le tecniche associate. L&apos;operazione non può essere annullata.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900">
+                  Annulla
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteProcedure}
+                  disabled={isDeletingProcedure}
+                  className="bg-linear-to-r from-rose-500 via-rose-600 to-rose-700 text-white shadow-lg shadow-rose-500/40 hover:from-rose-600 hover:via-rose-700 hover:to-rose-800 disabled:cursor-not-allowed disabled:opacity-80"
+                >
+                  {isDeletingProcedure ? "Eliminazione..." : "Elimina"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      ) : null}
+
+      <Dialog
+        open={isEditTitleOpen}
+        onOpenChange={(open) => {
+          setIsEditTitleOpen(open)
+          if (!open) {
+            setNewTitle(procedure?.procedura ?? "")
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg border-blue-200/70 bg-white/95 shadow-xl shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/95 dark:shadow-blue-950/60">
+          <DialogHeader>
+            <DialogTitle>Modifica il nome dell&apos;intervento</DialogTitle>
+            <DialogDescription>
+              Aggiorna il titolo della procedura per mantenerlo coerente con le tue convenzioni di sala.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label htmlFor="procedure-title">Nome intervento</Label>
+            <Input
+              id="procedure-title"
+              value={newTitle}
+              onChange={(event) => setNewTitle(event.target.value)}
+              placeholder="Es. Colecistectomia laparoscopica"
+              className="border-blue-200/70 focus-visible:border-blue-500 focus-visible:ring-blue-500"
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
+              >
+                Annulla
+              </Button>
+            </DialogClose>
+            <Button
+              onClick={handleUpdateProcedureTitle}
+              disabled={isUpdatingTitle}
+              className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-80"
+            >
+              {isUpdatingTitle ? "Salvataggio..." : "Salva"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto border-blue-200/70 bg-white/95 shadow-2xl shadow-blue-200/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/95 dark:shadow-blue-950/60">

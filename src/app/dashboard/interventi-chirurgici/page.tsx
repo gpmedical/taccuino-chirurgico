@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { CalendarClock, Layers3, PlusCircle } from "lucide-react"
+import { CalendarClock, Layers3, PlusCircle, Slice } from "lucide-react"
 import {
   collection,
   onSnapshot,
@@ -12,11 +12,13 @@ import {
 import type { Timestamp } from "firebase/firestore"
 
 import { DashboardSection } from "@/components/dashboard/section-shell"
+import { PaginationControls } from "@/components/dashboard/pagination-controls"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { db } from "@/lib/firebase"
 import { useAuth } from "@/contexts/auth-context"
+import { usePagination } from "@/hooks/use-pagination"
 import type { SurgicalProcedure } from "@/types/interventi"
 
 type TimestampLike = Timestamp | Date | { toDate?: () => Date } | null | undefined
@@ -77,7 +79,6 @@ export default function InterventiChirurgiciPage() {
   const [procedures, setProcedures] = useState<SurgicalProcedure[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
 
   const PROCEDURES_PER_PAGE = 6
 
@@ -123,30 +124,20 @@ export default function InterventiChirurgiciPage() {
     })
   }, [procedures])
 
-  const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(sortedProcedures.length / PROCEDURES_PER_PAGE))
-  }, [sortedProcedures.length, PROCEDURES_PER_PAGE])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [sortedProcedures.length])
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
-    }
-  }, [currentPage, totalPages])
-
-  const paginatedProcedures = useMemo(() => {
-    const start = (currentPage - 1) * PROCEDURES_PER_PAGE
-    const end = start + PROCEDURES_PER_PAGE
-    return sortedProcedures.slice(start, end)
-  }, [currentPage, sortedProcedures])
+  const {
+    currentPage,
+    totalPages,
+    pageItems: paginatedProcedures,
+    goToPrevious,
+    goToNext,
+    canGoPrevious,
+    canGoNext,
+  } = usePagination(sortedProcedures, PROCEDURES_PER_PAGE)
 
   return (
     <DashboardSection
       title="Interventi chirurgici"
-      description="Gestisci tutte le tue procedure annotate, aggiungi nuove tecniche e consulta rapidamente i dettagli già registrati."
+      description="Gestisci le tue procedure, aggiungi nuove tecniche e consulta rapidamente i dettagli registrati."
       actions={
         <Button
           asChild
@@ -181,24 +172,13 @@ export default function InterventiChirurgiciPage() {
           <Card className="border-blue-200/70 bg-white/70 shadow-sm shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/70 dark:shadow-blue-950/40">
             <CardHeader className="space-y-3 text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-sky-400 via-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/40">
-                <Layers3 className="h-6 w-6" />
+                <Slice className="h-6 w-6" />
               </div>
               <CardTitle className="text-blue-800 dark:text-blue-200">Nessun intervento registrato</CardTitle>
               <CardDescription>
                 Aggiungi il tuo primo intervento chirurgico per iniziare a costruire il tuo taccuino digitale.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center">
-              <Button
-                asChild
-                className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700"
-              >
-                <Link href="/dashboard/interventi-chirurgici/nuovo" className="flex items-center gap-2">
-                  Nuovo intervento
-                  <PlusCircle className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
           </Card>
         ) : null}
 
@@ -232,33 +212,17 @@ export default function InterventiChirurgiciPage() {
                 ))}
               </div>
             </div>
-            {totalPages > 1 ? (
-              <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {sortedProcedures.length} {sortedProcedures.length === 1 ? "procedura" : "procedure"} totali - Pagina {currentPage} di {totalPages}
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Precedente
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
-                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Successiva
-                  </Button>
-                </div>
-              </div>
-            ) : null}
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPrevious={goToPrevious}
+              onNext={goToNext}
+              disablePrevious={!canGoPrevious}
+              disableNext={!canGoNext}
+              summary={`${sortedProcedures.length} ${
+                sortedProcedures.length === 1 ? "procedura" : "procedure"
+              } totali - Pagina ${currentPage} di ${totalPages}`}
+            />
           </div>
         ) : null}
       </div>
