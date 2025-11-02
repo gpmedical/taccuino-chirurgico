@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { CalendarClock, Layers3, PlusCircle, Slice } from "lucide-react"
+import { CalendarClock, PlusCircle, Slice } from "lucide-react"
 import {
   collection,
   onSnapshot,
@@ -195,7 +195,7 @@ export default function InterventiChirurgiciPage() {
                       <CardHeader className="space-y-1 pb-0">
                         <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
                           {procedure.procedura}
-                          <Layers3 className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
+                          <Slice className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
                         </CardTitle>
                         <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
                           Visualizza tecniche, accorgimenti e appunti operativi.

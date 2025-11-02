@@ -2,12 +2,11 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { BookOpenText, FileText, PlusCircle, Stethoscope, CalendarClock } from "lucide-react"
+import { FileText, PlusCircle, Stethoscope, CalendarClock } from "lucide-react"
 import { collection, onSnapshot, query, where } from "firebase/firestore"
 import type { Timestamp } from "firebase/firestore"
 
 import { DashboardSection } from "@/components/dashboard/section-shell"
-import { PaginationControls } from "@/components/dashboard/pagination-controls"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -219,7 +218,7 @@ export default function PatologieChirurgichePage() {
                         <CardHeader className="space-y-1 pb-0">
                           <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
                             {pathology.patologia}
-                            <BookOpenText className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
+                            <Stethoscope className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
                           </CardTitle>
                           <CardDescription className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                             <FileText className="h-4 w-4 text-blue-500" />

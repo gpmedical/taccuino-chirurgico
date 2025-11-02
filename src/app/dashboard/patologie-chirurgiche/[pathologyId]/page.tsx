@@ -54,7 +54,7 @@ import {
   updatePathologyNote,
 } from "@/lib/surgical-pathologies"
 import type { SurgicalPathology, SurgicalPathologyNote } from "@/types/patologie"
-import { ArrowLeft, FilePenLine, PlusCircle, Trash2 } from "lucide-react"
+import { ArrowLeft, Layers3, PlusCircle, SquarePen, Trash2 } from "lucide-react"
 import { usePagination } from "@/hooks/use-pagination"
 
 type TimestampLike = Timestamp | Date | { toDate?: () => Date } | null | undefined
@@ -199,6 +199,12 @@ export default function PatologiaDetailPage() {
             updatedAt: data.updatedAt ?? null,
           }
         })
+
+        docs.sort((a, b) =>
+          (a.titolo ?? "").localeCompare(b.titolo ?? "", "it", {
+            sensitivity: "base",
+          })
+        )
 
         setNotes(docs)
         setNotesLoading(false)
@@ -356,7 +362,7 @@ export default function PatologiaDetailPage() {
             variant="outline"
             className="border-amber-200/70 text-amber-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-900 dark:border-amber-900/60 dark:text-amber-200 dark:hover:border-amber-700 dark:hover:bg-slate-900"
           >
-            <FilePenLine className="mr-2 h-4 w-4" />
+            <SquarePen className="mr-2 h-4 w-4" />
             Modifica nome
           </Button>
           <Button
@@ -407,15 +413,6 @@ export default function PatologiaDetailPage() {
                   Aggiungi la prima nota clinica per documentare iter diagnostici, strategie terapeutiche o follow-up.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center">
-                <Button
-                  onClick={handleCreateNote}
-                  className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:from-sky-600 hover:via-blue-700 hover:to-indigo-700"
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Aggiungi nota
-                </Button>
-              </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
@@ -427,7 +424,8 @@ export default function PatologiaDetailPage() {
                       className="group border-blue-200/70 bg-white/80 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/50 dark:border-blue-900/60 dark:bg-slate-950/80 dark:hover:border-blue-700 dark:hover:shadow-blue-900/50"
                     >
                       <CardHeader className="space-y-1">
-                        <CardTitle className="flex items-center justify-between text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
+                        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-900 transition group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-200">
+                          <Layers3 className="h-5 w-5" />
                           {note.titolo}
                         </CardTitle>
                         <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
@@ -443,7 +441,7 @@ export default function PatologiaDetailPage() {
                             className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
                             onClick={() => handleEditNote(note)}
                           >
-                            <FilePenLine className="mr-2 h-3.5 w-3.5" />
+                            <SquarePen className="mr-2 h-3.5 w-3.5" />
                             Modifica
                           </Button>
                           <Button
