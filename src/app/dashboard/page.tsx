@@ -34,13 +34,13 @@ const quickActions = [
   {
     title: "Crea patologia",
     description: "Salva i protocolli per la gestione delle più comuni patologie.",
-    href: "/dashboard/patologie-chirurgiche",
+    href: "/dashboard/patologie-chirurgiche/nuova",
     icon: Stethoscope,
   },
   {
     title: "Carica caso clinico",
     description: "Registra presentazione e gestione di casi clinici interessanti.",
-    href: "/dashboard/casi-clinici",
+    href: "/dashboard/casi-clinici/nuovo",
     icon: ClipboardList,
   },
 ]
@@ -61,6 +61,7 @@ const upcoming = [
 export default function Dashboard() {
   const { user } = useAuth()
   const [procedureCount, setProcedureCount] = useState<number | null>(null)
+  const [pathologyCount, setPathologyCount] = useState<number | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -81,6 +82,31 @@ export default function Dashboard() {
       (error) => {
         console.error("Errore nel conteggio degli interventi:", error)
         setProcedureCount(null)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [user])
+
+  useEffect(() => {
+    if (!user) {
+      setPathologyCount(0)
+      return
+    }
+
+    const pathologiesQuery = query(
+      collection(db, "surgicalPathologies"),
+      where("userId", "==", user.uid)
+    )
+
+    const unsubscribe = onSnapshot(
+      pathologiesQuery,
+      (snapshot) => {
+        setPathologyCount(snapshot.size)
+      },
+      (error) => {
+        console.error("Errore nel conteggio delle patologie:", error)
+        setPathologyCount(null)
       }
     )
 
@@ -110,7 +136,7 @@ export default function Dashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="border-blue-300/80 text-blue-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/70 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900">
-                <Link href="/dashboard/follow-up-pazienti">Gestisci pazienti</Link>
+                <Link href="/dashboard/pazienti">Gestisci pazienti</Link>
               </Button>
             </div>
           </div>
@@ -122,7 +148,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Interventi registrati</p>
                 <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {procedureCount ?? "—"}
+                  {procedureCount ?? "--"}
                 </p>
               </div>
             </div>
@@ -132,7 +158,9 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Patologie chirurgiche</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">12</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  {pathologyCount ?? "--"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">

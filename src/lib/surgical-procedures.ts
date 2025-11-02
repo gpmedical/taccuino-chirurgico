@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore"
@@ -56,6 +57,22 @@ export async function createProcedureWithTechnique(
   })
 
   return procedureRef.id
+}
+
+export async function updateProcedure(
+  procedureId: string,
+  payload: Pick<ProcedurePayload, "procedura">
+) {
+  const sanitizedName = payload.procedura?.trim() ?? ""
+  if (sanitizedName.length === 0) {
+    throw new Error("Il nome della procedura non può essere vuoto.")
+  }
+
+  const procedureRef = doc(db, PROCEDURES_COLLECTION, procedureId)
+  await updateDoc(procedureRef, {
+    procedura: sanitizedName,
+    updatedAt: serverTimestamp(),
+  })
 }
 
 export async function createTechnique(
@@ -127,4 +144,13 @@ export async function deleteTechnique(
   await deleteDoc(techniqueRef)
   const procedureRef = doc(db, PROCEDURES_COLLECTION, procedureId)
   await updateDoc(procedureRef, { updatedAt: serverTimestamp() })
+}
+
+export async function deleteProcedure(procedureId: string) {
+  const procedureRef = doc(db, PROCEDURES_COLLECTION, procedureId)
+  const techniquesRef = collection(procedureRef, TECHNIQUES_COLLECTION)
+  const techniquesSnapshot = await getDocs(techniquesRef)
+
+  await Promise.all(techniquesSnapshot.docs.map((technique) => deleteDoc(technique.ref)))
+  await deleteDoc(procedureRef)
 }

@@ -257,8 +257,8 @@ export default function PatologieChirurgichePage() {
                     variant="outline"
                     size="sm"
                     className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                    disabled={currentPage === 1}
+                    onClick={() => goToPrevious()}
+                    disabled={!canGoPrevious}
                   >
                     Precedente
                   </Button>
@@ -266,8 +266,8 @@ export default function PatologieChirurgichePage() {
                     variant="outline"
                     size="sm"
                     className="border-blue-200/70 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900 dark:border-blue-900/60 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-slate-900"
-                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => goToNext()}
+                    disabled={!canGoNext}
                   >
                     Successiva
                   </Button>

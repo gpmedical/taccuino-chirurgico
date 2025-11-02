@@ -156,7 +156,7 @@ export default function ResetPasswordPage() {
               alt="Taccuino Chirurgico"
               width={858}
               height={318}
-              className="h-16 w-auto dark:drop-shadow-[0_0_12px_rgba(37,99,235,0.35)]"
+              className="h-28 w-auto dark:drop-shadow-[0_0_12px_rgba(37,99,235,0.35)]"
               priority
             />
           </Link>

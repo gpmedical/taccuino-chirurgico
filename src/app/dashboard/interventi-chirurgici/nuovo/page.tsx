@@ -7,7 +7,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { ArrowLeft, ClipboardPlus } from "lucide-react"
+import { ArrowLeft, NotebookPen } from "lucide-react"
 
 import { DashboardSection } from "@/components/dashboard/section-shell"
 import { Button } from "@/components/ui/button"
@@ -105,7 +105,7 @@ export default function NuovoInterventoPage() {
       <Card className="border-blue-200/70 bg-white/80 shadow-md shadow-blue-100/60 backdrop-blur dark:border-blue-900/60 dark:bg-slate-950/80 dark:shadow-blue-950/40">
         <CardHeader className="space-y-2">
           <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-100">
-            <ClipboardPlus className="h-5 w-5" />
+            <NotebookPen className="h-5 w-5" />
             Dettagli intervento
           </CardTitle>
           <CardDescription>
