@@ -62,6 +62,7 @@ export default function Dashboard() {
   const { user } = useAuth()
   const [procedureCount, setProcedureCount] = useState<number | null>(null)
   const [pathologyCount, setPathologyCount] = useState<number | null>(null)
+  const [patientCount, setPatientCount] = useState<number | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -107,6 +108,31 @@ export default function Dashboard() {
       (error) => {
         console.error("Errore nel conteggio delle patologie:", error)
         setPathologyCount(null)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [user])
+
+  useEffect(() => {
+    if (!user) {
+      setPatientCount(0)
+      return
+    }
+
+    const patientsQuery = query(
+      collection(db, "patients"),
+      where("userId", "==", user.uid)
+    )
+
+    const unsubscribe = onSnapshot(
+      patientsQuery,
+      (snapshot) => {
+        setPatientCount(snapshot.size)
+      },
+      (error) => {
+        console.error("Errore nel conteggio dei pazienti:", error)
+        setPatientCount(null)
       }
     )
 
@@ -169,7 +195,9 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Pazienti salvati</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">5</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  {patientCount ?? "--"}
+                </p>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { CalendarClock, ClipboardList, Loader, PlusCircle, UserRound, UsersRound } from "lucide-react"
+import { Calendar, CalendarClock, Loader, PlusCircle, Slice, UserRound, UsersRound } from "lucide-react"
 import {
   collection,
   onSnapshot,
@@ -95,7 +95,23 @@ const formatDate = (value?: string | null) => {
   }
 }
 
+const parseDateString = (value?: string | null) => {
+  if (!value) return null
+
+  try {
+    const parsed = new Date(value)
+    return Number.isNaN(parsed.getTime()) ? null : parsed
+  } catch {
+    return null
+  }
+}
+
 const getPatientTimestamp = (patient: Patient) => {
+  const interventionDate = parseDateString(patient.dataIntervento)
+  if (interventionDate) {
+    return interventionDate.getTime()
+  }
+
   const source = patient.updatedAt ?? patient.createdAt ?? null
   if (!source) return 0
 
@@ -176,7 +192,16 @@ export default function PazientiPage() {
   }, [user?.uid])
 
   const sortedPatients = useMemo(() => {
-    return [...patients].sort((a, b) => getPatientTimestamp(b) - getPatientTimestamp(a))
+    return [...patients].sort((a, b) => {
+      const diff = getPatientTimestamp(b) - getPatientTimestamp(a)
+      if (diff !== 0) {
+        return diff
+      }
+
+      const nameA = (a.nome ?? "").toLowerCase()
+      const nameB = (b.nome ?? "").toLowerCase()
+      return nameA.localeCompare(nameB)
+    })
   }, [patients])
 
   const {
@@ -219,7 +244,7 @@ export default function PazientiPage() {
         {!loading && error ? (
           <Card className="border-rose-200/70 bg-rose-50/70 shadow-sm shadow-rose-100/60 dark:border-rose-900/60 dark:bg-rose-950/70 dark:shadow-rose-950/40">
             <CardHeader>
-              <CardTitle className="text-rose-700 dark:text-rose-200">Si e' verificato un errore</CardTitle>
+              <CardTitle className="text-rose-700 dark:text-rose-200">Si è verificato un errore</CardTitle>
               <CardDescription>{error}</CardDescription>
             </CardHeader>
           </Card>
@@ -255,50 +280,33 @@ export default function PazientiPage() {
                             <UserRound className="h-5 w-5 text-blue-500 transition group-hover:text-indigo-500" />
                             {patient.nome || "Paziente senza nome"}
                           </span>
-                          <Badge
-                            variant={patient.inSospeso ? "secondary" : "outline"}
-                            className={patient.inSospeso ? "border-transparent bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200" : "border-blue-200/70 text-blue-700 dark:border-blue-900/60 dark:text-blue-200"}
-                          >
-                            {patient.inSospeso ? "Follow-up in sospeso" : "Programma completato"}
-                          </Badge>
+                          {patient.inSospeso ? (
+                            <Badge className="border-transparent bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200">
+                              Follow-up in sospeso
+                            </Badge>
+                          ) : null}
                         </CardTitle>
                         <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
                           {patient.diagnosi ? `Diagnosi: ${patient.diagnosi}` : "Diagnosi non specificata"}
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="flex-1 space-y-4 pt-5 text-sm text-slate-600 dark:text-slate-300">
-                        <div className="grid gap-3">
-                          <div className="flex items-center gap-2">
-                            <ClipboardList className="h-4 w-4 text-blue-500" />
-                            <span>
-                              Intervento:{" "}
-                              <span className="font-medium text-slate-900 dark:text-slate-100">
-                                {patient.intervento ?? "-"}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CalendarClock className="h-4 w-4 text-blue-500" />
-                            <span>Data intervento: {formatDate(patient.dataIntervento)}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CalendarClock className="h-4 w-4 text-indigo-500" />
-                            <span>Follow-up: {formatDate(patient.dataFollowUp)}</span>
-                          </div>
-                          {patient.inSospeso && patient.pendingReason ? (
-                            <div className="flex items-center gap-2">
-                              <Loader className="h-4 w-4 text-amber-500" />
-                              <span>In sospeso: {patient.pendingReason}</span>
-                            </div>
-                          ) : null}
-                          <div>
-                            <span className="font-medium text-slate-900 dark:text-slate-100">Operatori:</span>{" "}
-                            {patient.operatori ?? "-"}
-                          </div>
+                      <CardContent className="flex-1 space-y-3 pt-5 text-sm text-slate-600 dark:text-slate-300">
+                        <div className="flex items-center gap-2">
+                          <Slice className="h-4 w-4 text-blue-500" />
+                          <span>Intervento: {patient.intervento ?? "-"}</span>
                         </div>
-                        {patient.note ? (
-                          <div className="rounded-lg border border-blue-100/70 bg-blue-50/30 p-3 text-xs italic text-slate-600 dark:border-blue-900/60 dark:bg-slate-900/60 dark:text-slate-300">
-                            {patient.note.length > 160 ? `${patient.note.slice(0, 157)}...` : patient.note}
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-blue-500" />
+                          <span>Data intervento: {formatDate(patient.dataIntervento)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CalendarClock className="h-4 w-4 text-indigo-500" />
+                          <span>Follow-up: {formatDate(patient.dataFollowUp)}</span>
+                        </div>
+                        {patient.inSospeso && patient.pendingReason ? (
+                          <div className="flex items-center gap-2">
+                            <Loader className="h-4 w-4 text-amber-500" />
+                            <span>{patient.pendingReason}</span>
                           </div>
                         ) : null}
                       </CardContent>
@@ -325,5 +333,4 @@ export default function PazientiPage() {
     </DashboardSection>
   )
 }
-
 

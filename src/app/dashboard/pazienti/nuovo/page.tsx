@@ -44,7 +44,7 @@ const interventionSchema = z.string().trim().max(160, "Massimo 160 caratteri")
 
 const mediumTextSchema = z.string().trim().max(400, "Massimo 400 caratteri")
 
-const longTextSchema = z.string().trim().max(4000, "Il testo inserito e' troppo lungo")
+const longTextSchema = z.string().trim().max(4000, "Il testo inserito è troppo lungo")
 
 const dateSchema = z
   .string()
@@ -75,7 +75,7 @@ const formSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["pendingReason"],
-        message: "Specifica cosa e' in sospeso",
+        message: "Specifica cosa è in sospeso",
       })
     }
 
@@ -155,7 +155,7 @@ export default function NuovoPazientePage() {
       router.push(`/dashboard/pazienti/${patientId}`)
     } catch (error) {
       console.error("Errore durante la creazione del paziente:", error)
-      toast.error("Non e' stato possibile creare il paziente. Riprova piu' tardi.")
+      toast.error("Non è stato possibile creare il paziente. Riprova più tardi.")
     } finally {
       setIsSubmitting(false)
     }
